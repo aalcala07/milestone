@@ -1,5 +1,7 @@
 <?php
 
+namespace Milestone\Database;
+
 use App\User;
 use Milestone\UserSettings;
 use Illuminate\Database\Seeder;

@@ -1,4 +1,5 @@
 <?php
+namespace Milestone\Database;
 
 use Illuminate\Database\Seeder;
 use Milestone\WeeklyGoalList;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Milestone;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
@@ -38,7 +38,7 @@ class WeeklyGoalSet extends Model
 
     public function goals()
     {
-        return $this->hasMany('App\WeeklyGoalSetGoal');
+        return $this->hasMany('Milestone\WeeklyGoalSetGoal');
     }
 
     

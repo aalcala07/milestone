@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\WeeklyGoalList;
+use Milestone\WeeklyGoalList;
 
 class GoalsSeeder extends Seeder
 {

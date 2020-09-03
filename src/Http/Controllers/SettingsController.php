@@ -6,12 +6,12 @@ use Settings\UserSettings;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class SettingsController extends Controller
+class SettingsController
 {
     public function index()
     {
         $settings = UserSettings::where('user_id', auth()->user()->id)->first();
-        return view('settings', compact('settings'));
+        return view('milestone::settings', compact('settings'));
     }
 
     public function update(Request $request)

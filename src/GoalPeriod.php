@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Milestone;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
@@ -19,7 +19,7 @@ class GoalPeriod extends Model
 
     public function goals()
     {
-        return $this->hasMany(\App\WeeklyGoal::class);
+        return $this->hasMany(\Milestone\WeeklyGoal::class);
     }
 
     public function getStartLocalFriendlyAttribute()

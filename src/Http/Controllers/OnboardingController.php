@@ -13,19 +13,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
-class OnboardingController extends Controller
+class OnboardingController
 {
     public function index()
     {
         $settings = UserSettings::where('user_id', auth()->user()->id)->first();
-        if ($settings->onboarded) {
+        if ($settings && $settings->onboarded) {
             return redirect()->route('goalSets');
         }
 
         $user = auth()->user();
         list($startDates, $endDates) = Calendar::weekDates(Carbon::now(session('timezone'))->startOfWeek(), 104);
         
-        return view('onboarding', compact(['user', 'startDates', 'endDates']));
+        return view('milestone::onboarding', compact(['user', 'startDates', 'endDates']));
     }
 
     public function store(Request $request)
@@ -86,6 +86,10 @@ class OnboardingController extends Controller
         }
 
         $settings = UserSettings::where('user_id', auth()->user()->id)->first();
+        if (!$settings) {
+            $settings = new UserSettings();
+            $settings->user_id = auth()->user()->id;
+        }
         $settings->onboarded = true;
 
         try {

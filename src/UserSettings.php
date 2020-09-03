@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Milestone;
 
 use Illuminate\Database\Eloquent\Model;
 

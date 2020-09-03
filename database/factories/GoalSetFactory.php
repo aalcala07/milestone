@@ -2,7 +2,7 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use App\GoalSet;
+use Milestone\GoalSet;
 use Faker\Generator as Faker;
 
 $factory->define(GoalSet::class, function (Faker $faker) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Milestone;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,6 +36,6 @@ class GoalList extends Model
 
     public function goalSet()
     {
-        return $this->belongsTo(\App\GoalSet::class);
+        return $this->belongsTo(\Milestone\GoalSet::class);
     }
 }

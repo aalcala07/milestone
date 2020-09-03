@@ -17,7 +17,7 @@ class Onboarding
     public function handle($request, Closure $next)
     {
         $settings = UserSettings::where('user_id', auth()->user()->id)->first();
-        if (!$settings->onboarded) {
+        if (!$settings || !$settings->onboarded) {
             return redirect()->route('onboarding.index');
         }
         return $next($request);

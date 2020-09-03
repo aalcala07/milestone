@@ -1,7 +1,7 @@
 <?php
 
 use App\User;
-use App\UserSettings;
+use Milestone\UserSettings;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Milestone;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,6 +25,6 @@ class WeeklyGoalSetGoal extends Model
 
     public function goal()
     {
-        return $this->belongsTo('App\WeeklyGoal', 'weekly_goal_id');
+        return $this->belongsTo('Milestone\WeeklyGoal', 'weekly_goal_id');
     }
 }

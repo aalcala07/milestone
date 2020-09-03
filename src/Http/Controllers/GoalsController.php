@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
-class GoalsController extends Controller
+class GoalsController
 {
     /**
      * @param \Illuminate\Http\Request $request
@@ -32,7 +32,7 @@ class GoalsController extends Controller
         $goals = collect();
         $stats = null;
 
-        return view('goals.periods', compact('period', 'otherPeriods', 'goals', 'stats'));
+        return view('milestone::goals.periods', compact('period', 'otherPeriods', 'goals', 'stats'));
     }
 
     public function sets(Request $request, WeeklyGoalSet $goalSet)
@@ -51,7 +51,7 @@ class GoalsController extends Controller
             $otherSets = auth()->user()->goalSets;
         }
 
-        return view ('goals.sets', compact('showOne', 'set', 'otherSets'));
+        return view ('milestone::goals.sets', compact('showOne', 'set', 'otherSets'));
     }
 
     public function updateSet(Request $request)
@@ -87,7 +87,7 @@ class GoalsController extends Controller
         $period = $request->has('period') ? GoalPeriod::find($request->input('period')) : null;
         // $selectablePeriods = $request->has('period') ? GoalPeriod::find($request->input('period')) : null;
         $periods = GoalPeriod::all();
-        return view('goals.import', compact('period', 'periods'));
+        return view('milestone::goals.import', compact('period', 'periods'));
     }
 
     public function storeImport(Request $request)
@@ -167,14 +167,14 @@ class GoalsController extends Controller
         $goals = collect($goals);
 
         $otherPeriods = GoalPeriod::where('user_id', auth()->user()->id)->get();
-        return view('goals.periods', compact('period', 'otherPeriods', 'goals', 'stats'));
+        return view('milestone::goals.periods', compact('period', 'otherPeriods', 'goals', 'stats'));
     }
 
     public function createPeriod()
     {
         // TODO: Set start date to next available start date
         list($startDates, $endDates) = Calendar::weekDates(Carbon::now(session('timezone'))->startOfWeek(), 104);
-        return view('goals.createPeriod', compact('startDates', 'endDates'));
+        return view('milestone::goals.createPeriod', compact('startDates', 'endDates'));
     }
 
     public function storePeriod(Request $request)

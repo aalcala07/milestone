@@ -37,6 +37,7 @@ class MilestoneServiceProvider extends ServiceProvider
 
 
         $this->commands([
+            CreateGoalSetsCommand::class,
             InstallCommand::class,
         ]);
     }

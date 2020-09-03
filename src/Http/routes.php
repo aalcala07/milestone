@@ -5,12 +5,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::namespace('Milestone\Http\Controllers')->group(function () {
     Route::prefix(config('milestone.path'))->middleware(config('milestone.middleware'))->group(function () {
-        Route::get('/', 'GoalsController@index')->name('milestone.home');
 
         Route::get('onboarding', 'OnboardingController@index')->name('onboarding.index');
         Route::post('onboarding', 'OnboardingController@store')->name('onboarding.store');
 
         Route::middleware([Onboarding::class])->group(function () {
+            Route::get('/', 'GoalsController@index')->name('milestone.home');
             Route::prefix('goals')->group(function () {
                 Route::get('periods', 'GoalsController@index')->name('goals.periods');
                 Route::get('periods/create', 'GoalsController@createPeriod')->name('goals.periods.create');

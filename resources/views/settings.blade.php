@@ -21,7 +21,7 @@
                     @enderror
                     <select name="timezone" id="timezone" class="form-control">
                         <option value="UTC">UTC</option>
-                        @foreach (config('timezones') as $timezone => $timezoneLabel)
+                        @foreach (config('milestone.timezones') as $timezone => $timezoneLabel)
                             <option value="{{ $timezone }}" @if ($timezone === $settings->timezone) selected @endif >{{ $timezoneLabel }}</option>
                         @endforeach
                     </select>

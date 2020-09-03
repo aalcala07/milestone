@@ -140,11 +140,8 @@ class GoalsController extends Controller
             $goals[$goal['id']] = $goal;
         }
 
-        // dd($goals);
-
         // $stats['total_points_possible'] = $period->total_weeks * count($goals);
         $sets = WeeklyGoalSet::where('user_id', auth()->user()->id)->get();
-        // dd($sets);
 
         foreach ($sets as $set) {
             if ($set->start < $period->start || $set->start > $period->end) {
@@ -153,7 +150,7 @@ class GoalsController extends Controller
             
             foreach ($set->goals as $goal) {
                 if (!isset($goals[$goal->weekly_goal_id])) {
-                    continue;//dd($goal);
+                    continue;
                 }
                 $stats['total_points_possible']++;
                 if ($goal->completed || $goal->progress_value >= $goal->completion_value) {

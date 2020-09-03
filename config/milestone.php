@@ -39,5 +39,15 @@ return [
         'auth',
     ],
 
+    'timezones' => [
+        'America/New_York' => 'Eastern Time - New York',
+        'America/Chicago' => 'Central Time - Chicago',
+        'America/Denver' => 'Mountain Time - Denver',
+        'America/Phoenix' => 'Mountain Time - Phoenix (no daylight savings)',
+        'America/Los_Angeles' => 'Pacific Time - Los Angeles',
+        'America/Anchorage' => 'Alaska Time - Anchorage',
+        'America/Adak' => 'Hawaii-Aleutian - Adak',
+        'Pacific/Honolulu' => 'Hawaii-Aleutian Time - Honolulu (no daylight savings)'
+    ]
 
 ];

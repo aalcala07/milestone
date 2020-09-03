@@ -1,8 +1,8 @@
 <?php
 
-namespace Settings\Http\Controllers;
+namespace Milestone\Http\Controllers;
 
-use Settings\UserSettings;
+use Milestone\UserSettings;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 

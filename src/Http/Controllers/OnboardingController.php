@@ -22,7 +22,6 @@ class OnboardingController
             return redirect()->route('goalSets');
         }
 
-        $user = auth()->user();
         list($startDates, $endDates) = Calendar::weekDates(Carbon::now(session('timezone'))->startOfWeek(), 104);
         
         return view('milestone::onboarding', compact(['user', 'startDates', 'endDates']));

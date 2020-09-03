@@ -42,13 +42,13 @@ class GoalsController
         $showOne = false;
 
         if (!$goalSet->id) {
-            $sets = auth()->user()->goalSets;
-            $set = $sets->shift();
+            $sets = WeeklyGoalSet::where('user_id', auth()->user()->id)->orderBy('start', 'desc')->get();
+            $set = $sets->first();
             $otherSets = $sets;
         } else {
             $showOne = true;
             $set = $goalSet;
-            $otherSets = auth()->user()->goalSets;
+            $otherSets = WeeklyGoalSet::where('user_id', auth()->user()->id)->orderBy('start', 'desc')->get();
         }
 
         return view ('milestone::goals.sets', compact('showOne', 'set', 'otherSets'));

@@ -1,22 +1,22 @@
 <?php
 
-namespace Milestone\Console\Commands;
+namespace Milestone\Console;
 
-use Milestone\User;
 use Milestone\UserSettings;
+use Milestone\WeeklyGoal;
 use Milestone\WeeklyGoalSet;
 use Milestone\WeeklyGoalSetGoal;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class CreateGoalSets extends Command
+class CreateGoalSetsCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'goals:createSets';
+    protected $signature = 'milestone:createSets';
 
     /**
      * The console command description.
@@ -42,17 +42,24 @@ class CreateGoalSets extends Command
      */
     public function handle()
     {
-        $users = User::all();
+        $users = \App\User::all();
         foreach ($users as $user) {
-            if (empty($user->weeklyGoals)) {
+
+            $goals = WeeklyGoal::where('user_id', $user->id);
+
+            // Skip if the user doesn't have any goals
+            if (empty($goals)) {
                 continue;
             }
 
-            $settings = UserSettings::where('user_id', 1)->first();
+            $settings = UserSettings::where('user_id', $user->id)->first();
             $start = Carbon::now($settings->timezone ?? config('app.timezone'))->startOfWeek()->setTimezone(config('app.timezone'));
             
-            if ($user->goalSets->first()) {
-                $nextStart = (new Carbon($user->goalSets->first()->start))->addWeek()->startOfWeek();
+            $goalSets = WeeklyGoalSet::where('user_id', $user->id)->orderBy('start', 'desc')->get();
+            if ($goalSets->count()) {
+                $nextStart = (new Carbon($goalSets->first()->start))->addWeek()->startOfWeek();
+
+                // Skip if the it's too soon to create the next goal set
                 if ($nextStart->toDateTimeString() >= $start->toDateTimeString()) {
                     continue;
                 }
@@ -66,18 +73,18 @@ class CreateGoalSets extends Command
 
             $set->save();
 
-            $goals = [];
-            foreach ($user->weeklyGoals as $weeklyGoal) {
-                $goals[] = [
+            $goalSetGoals = [];
+            foreach ($goals as $weeklyGoal) {
+                $goalSetGoals[] = [
                     'completion_value' => $weeklyGoal->completion_value,
                     'weekly_goal_id' => $weeklyGoal->id,
                     'weekly_goal_set_id' => $set->id
                 ];
             }
 
-            WeeklyGoalSetGoal::insert($goals);
+            WeeklyGoalSetGoal::insert($goalSetGoals);
 
-            echo "Goal Set created for {$user->name} with " . count($goals) . " goals.\n";
+            echo "Goal Set created for {$user->id} with " . count($goalSetGoals) . " goals.\n";
         }
     }
 }

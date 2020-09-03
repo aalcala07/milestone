@@ -2,6 +2,7 @@
 
 namespace Milestone;
 
+use Milestone\Console\CreateGoalSetsCommand;
 use Milestone\Console\InstallCommand;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\ServiceProvider;

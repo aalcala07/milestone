@@ -24,7 +24,7 @@ class OnboardingController
 
         list($startDates, $endDates) = Calendar::weekDates(Carbon::now(session('timezone'))->startOfWeek(), 104);
         
-        return view('milestone::onboarding', compact(['user', 'startDates', 'endDates']));
+        return view('milestone::onboarding', compact(['startDates', 'endDates']));
     }
 
     public function store(Request $request)
@@ -105,7 +105,7 @@ class OnboardingController
             return redirect(route('onboarding.index'))->with('error_message', 'Error! Unable to create goal period and goals.');
         }
         
-        Artisan::call('goals:createSets');
+        Artisan::call('milestone:createSets');
 
         return redirect(route('goalSets'))->with('success_message', 'Success! Your goals have been created.');
     }

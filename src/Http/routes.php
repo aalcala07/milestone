@@ -22,6 +22,10 @@ Route::namespace('Milestone\Http\Controllers')->group(function () {
                 Route::get('import', 'GoalsController@import')->name('goals.import');
                 Route::post('import', 'GoalsController@storeImport')->name('goals.storeImport');
             });
+
+            Route::prefix('documents')->name('documents.')->group(function() {
+                Route::get('/', 'DocumentController@index')->name('index');
+            });
             
             Route::get('settings', 'SettingsController@index')->name('settings.index');
             Route::post('settings', 'SettingsController@update')->name('settings.update');

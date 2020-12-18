@@ -68,6 +68,10 @@ class MilestoneServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/milestone.php' => config_path('milestone.php'),
             ], 'milestone-config');
+
+            $this->publishes([
+                __DIR__ . '/../database/seeds/MilestoneSeeder.php' => database_path('seeds/MilestoneSeeder.php'),
+            ], 'milestone-seeds');
         }
     }
 

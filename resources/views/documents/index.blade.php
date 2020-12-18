@@ -1,5 +1,5 @@
 @extends('milestone::layouts.app')
 
 @section('content')
-    <documents-board :documents="{{ $documents->toJson() }}"></documents-board>
+    <documents-board :groups="{{ $groups->toJson() }}"></documents-board>
 @endsection

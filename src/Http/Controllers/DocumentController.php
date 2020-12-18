@@ -4,6 +4,8 @@ namespace Milestone\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Milestone\Document;
+use Milestone\DocumentGroup;
 
 class DocumentController
 {
@@ -13,8 +15,16 @@ class DocumentController
      */
     public function index(Request $request)
     {
-        
-        $documents = collect(
+        // $documents = Document::where('user_id', auth()->user()->id)->with('template')->get();
+
+        // $groups = DocumentGroup::where('user_id', auth()->user()->id)->with('documents', 'documents.template')->get();
+        $groups = DocumentGroup::groupDocumentsByYear();
+        // dd($documents->first()->template);
+        // echo "<pre>" . $groups->toJson(JSON_PRETTY_PRINT) . "</pre>"; die;
+
+        return view('milestone::documents.index', compact('groups'));
+
+        $groups = collect(
             [
                 [
                     'type' => 'Journals',
@@ -22,41 +32,41 @@ class DocumentController
                         [
                             'year' => 2020,
                             'documents' => [
-                            [
-                                'title' => 'Journal 1',
-                                'body' => 'Journal body text',
-                                'date' => '12/12/2020'
-                            ],
-                            [
-                                'title' => 'Journal 2',
-                                'body' => 'Journal body text',
-                                'date' => '12/12/2020'
-                            ],
-                            [
-                                'title' => 'Journal 3',
-                                'body' => 'Journal body text',
-                                'date' => '12/12/2020'
-                            ],
+                                [
+                                    'title' => 'Journal 1',
+                                    'body' => 'Journal body text',
+                                    'date' => '12/12/2020'
+                                ],
+                                [
+                                    'title' => 'Journal 2',
+                                    'body' => 'Journal body text',
+                                    'date' => '12/12/2020'
+                                ],
+                                [
+                                    'title' => 'Journal 3',
+                                    'body' => 'Journal body text',
+                                    'date' => '12/12/2020'
+                                ],
                             ]
                         ],
                         [
                             'year' => 2019,
                             'documents' => [
-                            [
-                                'title' => 'Journal 1',
-                                'body' => 'Journal body text',
-                                'date' => '12/12/2019'
-                            ],
-                            [
-                                'title' => 'Journal 2',
-                                'body' => 'Journal body text',
-                                'date' => '12/12/2019'
-                            ],
-                            [
-                                'title' => 'Journal 3',
-                                'body' => 'Journal body text',
-                                'date' => '12/12/2019'
-                            ],
+                                [
+                                    'title' => 'Journal 1',
+                                    'body' => 'Journal body text',
+                                    'date' => '12/12/2019'
+                                ],
+                                [
+                                    'title' => 'Journal 2',
+                                    'body' => 'Journal body text',
+                                    'date' => '12/12/2019'
+                                ],
+                                [
+                                    'title' => 'Journal 3',
+                                    'body' => 'Journal body text',
+                                    'date' => '12/12/2019'
+                                ],
                             ]
                         ],
                     ]
@@ -107,7 +117,7 @@ class DocumentController
                     ]
                 ]
             ]);
-        return view('milestone::documents.index', compact('documents'));
+        return view('milestone::documents.index', compact('groups'));
     }
 
 }

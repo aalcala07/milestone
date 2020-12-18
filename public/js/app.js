@@ -2032,32 +2032,27 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['documents'],
+  props: ['groups'],
   data: function data() {
     return {
-      selectedType: 'Journal Entries',
-      selectedYear: 2020
+      selectedGroup: null,
+      selectedYear: null,
+      openTabs: []
     };
   },
   computed: {
     documentsInSideNav: function documentsInSideNav() {
       // return this.documents[0].years[0].documents
-      var _iterator = _createForOfIteratorHelper(this.documents),
+      // return []
+      var _iterator = _createForOfIteratorHelper(this.groups),
           _step;
 
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
           var group = _step.value;
 
-          if (group.type === this.selectedType) {
+          if (group.name === this.selectedGroup) {
             var _iterator2 = _createForOfIteratorHelper(group.years),
                 _step2;
 
@@ -2085,16 +2080,17 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       return [];
     },
     itemsInSideNav: function itemsInSideNav() {
-      if (this.selectedType) {
+      // return [];
+      if (this.selectedGroup) {
         // show years in type
-        var _iterator3 = _createForOfIteratorHelper(this.documents),
+        var _iterator3 = _createForOfIteratorHelper(this.groups),
             _step3;
 
         try {
           for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
             var group = _step3.value;
 
-            if (group.type === this.selectedType) {
+            if (group.name === this.selectedGroup) {
               return group.years.map(function (year) {
                 return {
                   name: year.year
@@ -2110,20 +2106,91 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       } // return types
 
 
-      return this.documents.map(function (group) {
+      return this.groups.map(function (group) {
         return {
-          name: group.type
+          name: group.name
         };
       });
+    },
+    activeTab: function activeTab() {
+      if (!this.openTabs.length) {
+        return null;
+      }
+
+      for (var i = 0; i < this.openTabs.length; i++) {
+        if (this.openTabs[i].isActive) {
+          return this.openTabs[i];
+        }
+      }
+
+      return null;
     }
   },
   methods: {
     handleSideNavItemClick: function handleSideNavItemClick(item) {
-      if (this.selectedType) {
+      if (this.selectedGroup) {
         this.selectedYear = item.name;
       } else {
-        this.selectedType = item.name;
+        this.selectedGroup = item.name;
       }
+    },
+    getTabTitle: function getTabTitle(tab) {
+      if (tab.type === 'document') {
+        return tab.content.display_title;
+      }
+    },
+    openDocument: function openDocument(document) {
+      console.log("opening document id ".concat(document.id));
+
+      if (this.openTabs.length) {
+        this.openTabs.forEach(function (tab) {
+          tab.isActive = false;
+        });
+      }
+
+      var _iterator4 = _createForOfIteratorHelper(this.openTabs),
+          _step4;
+
+      try {
+        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+          var tab = _step4.value;
+
+          if (tab.type === 'document' && tab.content.id === document.id) {
+            console.log('document is already open. making active');
+            tab.isActive = true;
+            return;
+          }
+        }
+      } catch (err) {
+        _iterator4.e(err);
+      } finally {
+        _iterator4.f();
+      }
+
+      this.openTabs.push({
+        isActive: true,
+        type: 'document',
+        content: document
+      });
+    },
+    activateTab: function activateTab(tabIndex) {
+      this.openTabs.forEach(function (tab) {
+        tab.isActive = false;
+      });
+      this.openTabs[tabIndex].isActive = true;
+    },
+    closeTab: function closeTab(tabIndex) {
+      console.log("close tab ".concat(tabIndex));
+      var newActiveIndex = tabIndex === 0 ? 1 : tabIndex - 1;
+      console.log({
+        newActiveIndex: newActiveIndex
+      });
+
+      if (typeof this.openTabs[newActiveIndex] !== 'undefined') {
+        this.openTabs[newActiveIndex].isActive = true;
+      }
+
+      this.openTabs.splice(tabIndex, 1);
     }
   }
 });
@@ -37732,7 +37799,7 @@ var render = function() {
                     attrs: { href: "javascript:void(0);" },
                     on: {
                       click: function($event) {
-                        _vm.selectedType = null
+                        _vm.selectedGroup = null
                         _vm.selectedYear = null
                       }
                     }
@@ -37741,7 +37808,7 @@ var render = function() {
                 )
               ]),
               _vm._v(" "),
-              _vm.selectedType
+              _vm.selectedGroup
                 ? _c("li", { staticClass: "breadcrumb-item" }, [
                     _c(
                       "a",
@@ -37753,7 +37820,7 @@ var render = function() {
                           }
                         }
                       },
-                      [_vm._v(_vm._s(_vm.selectedType))]
+                      [_vm._v(_vm._s(_vm.selectedGroup))]
                     )
                   ])
                 : _vm._e(),
@@ -37766,34 +37833,47 @@ var render = function() {
             ])
           ]),
           _vm._v(" "),
-          _vm.selectedType && _vm.selectedYear
+          _vm.selectedGroup && _vm.selectedYear
             ? _c(
                 "ul",
                 { staticClass: "documents-list flex-fill" },
                 _vm._l(_vm.documentsInSideNav, function(document) {
                   return _c("li", { staticClass: "documents-list-item" }, [
-                    _c("div", { staticClass: "card" }, [
-                      _c("div", { staticClass: "card-body" }, [
-                        _c("h5", { staticClass: "card-title" }, [
-                          _vm._v(_vm._s(document.title))
-                        ]),
-                        _vm._v(" "),
-                        _c("p", { staticClass: "card-text" }, [
-                          _vm._v(_vm._s(document.body))
-                        ]),
-                        _vm._v(" "),
-                        _c("p", { staticClass: "card-text" }, [
-                          _c("small", [_vm._v(_vm._s(document.date))])
+                    _c(
+                      "div",
+                      {
+                        staticClass: "card",
+                        on: {
+                          click: function($event) {
+                            return _vm.openDocument(document)
+                          }
+                        }
+                      },
+                      [
+                        _c("div", { staticClass: "card-body" }, [
+                          _c("h5", { staticClass: "card-title" }, [
+                            _vm._v(_vm._s(document.display_title))
+                          ]),
+                          _vm._v(" "),
+                          _c("p", { staticClass: "card-text" }, [
+                            _vm._v(_vm._s(document.text_preview))
+                          ]),
+                          _vm._v(" "),
+                          _c("p", { staticClass: "card-text" }, [
+                            _c("small", [
+                              _vm._v(_vm._s(document.display_date_relative))
+                            ])
+                          ])
                         ])
-                      ])
-                    ])
+                      ]
+                    )
                   ])
                 }),
                 0
               )
             : _c(
                 "ul",
-                { staticClass: "list-unstyled p-0" },
+                { staticClass: "list-unstyled p-3" },
                 _vm._l(_vm.itemsInSideNav, function(item) {
                   return _c("li", [
                     _c(
@@ -37826,118 +37906,109 @@ var render = function() {
       },
       [
         _c("nav", [
-          _c("ul", { staticClass: "panel-tabs" }, [
-            _c("li", { staticClass: "panel-tab active" }, [
-              _vm._v("Document 1 "),
-              _c("i", { staticClass: "bi bi-x" }),
-              _c(
-                "svg",
-                {
-                  staticClass: "bi bi-x",
-                  attrs: {
-                    xmlns: "http://www.w3.org/2000/svg",
-                    width: "16",
-                    height: "16",
-                    fill: "currentColor",
-                    viewBox: "0 0 16 16"
-                  }
-                },
-                [
-                  _c("path", {
-                    attrs: {
-                      "fill-rule": "evenodd",
-                      d:
-                        "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+          _c(
+            "ul",
+            { staticClass: "panel-tabs" },
+            [
+              _vm._l(_vm.openTabs, function(tab, tabIndex) {
+                return _c(
+                  "li",
+                  {
+                    staticClass: "panel-tab",
+                    class: { active: tab.isActive },
+                    on: {
+                      click: function($event) {
+                        if ($event.target !== $event.currentTarget) {
+                          return null
+                        }
+                        return _vm.activateTab(tabIndex)
+                      }
                     }
-                  })
-                ]
-              )
-            ]),
-            _vm._v(" "),
-            _c("li", { staticClass: "panel-tab" }, [
-              _vm._v("Document 2 "),
-              _c(
-                "svg",
-                {
-                  staticClass: "bi bi-x",
-                  attrs: {
-                    xmlns: "http://www.w3.org/2000/svg",
-                    width: "16",
-                    height: "16",
-                    fill: "currentColor",
-                    viewBox: "0 0 16 16"
-                  }
-                },
-                [
-                  _c("path", {
+                  },
+                  [
+                    _vm._v(
+                      _vm._s(_vm.getTabTitle(tab)) + " \n                    "
+                    ),
+                    _c(
+                      "a",
+                      {
+                        attrs: { href: "javascript:void(0)" },
+                        on: {
+                          click: function($event) {
+                            return _vm.closeTab(tabIndex)
+                          }
+                        }
+                      },
+                      [
+                        _c("i", { staticClass: "bi bi-x" }),
+                        _c(
+                          "svg",
+                          {
+                            staticClass: "bi bi-x",
+                            attrs: {
+                              xmlns: "http://www.w3.org/2000/svg",
+                              width: "16",
+                              height: "16",
+                              fill: "currentColor",
+                              viewBox: "0 0 16 16"
+                            }
+                          },
+                          [
+                            _c("path", {
+                              attrs: {
+                                "fill-rule": "evenodd",
+                                d:
+                                  "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                              }
+                            })
+                          ]
+                        )
+                      ]
+                    )
+                  ]
+                )
+              }),
+              _vm._v(" "),
+              _c("li", { staticClass: "panel-tab" }, [
+                _c(
+                  "svg",
+                  {
+                    staticClass: "bi bi-plus",
                     attrs: {
-                      "fill-rule": "evenodd",
-                      d:
-                        "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                      xmlns: "http://www.w3.org/2000/svg",
+                      width: "16",
+                      height: "16",
+                      fill: "currentColor",
+                      viewBox: "0 0 16 16"
                     }
-                  })
-                ]
-              )
-            ]),
-            _vm._v(" "),
-            _c("li", { staticClass: "panel-tab" }, [
-              _vm._v("Document 3 "),
-              _c(
-                "svg",
-                {
-                  staticClass: "bi bi-x",
-                  attrs: {
-                    xmlns: "http://www.w3.org/2000/svg",
-                    width: "16",
-                    height: "16",
-                    fill: "currentColor",
-                    viewBox: "0 0 16 16"
-                  }
-                },
-                [
-                  _c("path", {
-                    attrs: {
-                      "fill-rule": "evenodd",
-                      d:
-                        "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
-                    }
-                  })
-                ]
-              )
-            ]),
-            _vm._v(" "),
-            _c("li", { staticClass: "panel-tab" }, [
-              _c(
-                "svg",
-                {
-                  staticClass: "bi bi-plus",
-                  attrs: {
-                    xmlns: "http://www.w3.org/2000/svg",
-                    width: "16",
-                    height: "16",
-                    fill: "currentColor",
-                    viewBox: "0 0 16 16"
-                  }
-                },
-                [
-                  _c("path", {
-                    attrs: {
-                      "fill-rule": "evenodd",
-                      d:
-                        "M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
-                    }
-                  })
-                ]
-              )
-            ])
-          ])
+                  },
+                  [
+                    _c("path", {
+                      attrs: {
+                        "fill-rule": "evenodd",
+                        d:
+                          "M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
+                      }
+                    })
+                  ]
+                )
+              ])
+            ],
+            2
+          )
         ]),
         _vm._v(" "),
-        _vm._m(1)
+        _c("div", { staticClass: "document-view flex-grow" }, [
+          _vm.activeTab && _vm.activeTab.type === "document"
+            ? _c("div", [
+                _c("h1", [_vm._v(_vm._s(_vm.activeTab.content.display_title))])
+              ])
+            : _vm._e()
+        ])
       ]
     ),
     _vm._v(" "),
-    _vm._m(2)
+    _vm._m(1)
   ])
 }
 var staticRenderFns = [
@@ -37951,32 +38022,6 @@ var staticRenderFns = [
           staticClass: "form-control",
           attrs: { name: "search", placeholder: "Search" }
         })
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "document-view flex-grow" }, [
-      _c("h1", [_vm._v("Document Title")]),
-      _vm._v(" "),
-      _c("p", [
-        _vm._v(
-          "Document content goes here. Document content goes here. Document content goes here. Document content goes here. Document content goes here. "
-        )
-      ]),
-      _vm._v(" "),
-      _c("p", [
-        _vm._v(
-          "Document content goes here. Document content goes here. Document content goes here. "
-        )
-      ]),
-      _vm._v(" "),
-      _c("p", [
-        _vm._v(
-          "Document content goes here. Document content goes here. Document content goes here. Document content goes here. Document content goes here. Document content goes here. Document content goes here. Document content goes here. "
-        )
       ])
     ])
   },

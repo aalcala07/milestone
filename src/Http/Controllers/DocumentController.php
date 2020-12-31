@@ -120,4 +120,9 @@ class DocumentController
         return view('milestone::documents.index', compact('groups'));
     }
 
+    public function sections(Request $request, Document $document)
+    {
+        return response()->json($document->load(['sections', 'sections.templateSection', 'sections.fields']));
+    }
+
 }

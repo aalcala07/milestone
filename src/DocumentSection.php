@@ -32,7 +32,7 @@ class DocumentSection extends Model
 
     public function templateSection()
     {
-        return $this->belongsTo(\Milestone\DocumentTemplateSection::class);
+        return $this->belongsTo(\Milestone\DocumentTemplateSection::class, 'document_template_section_id');
     }
 
     public function fields()

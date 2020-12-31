@@ -31,6 +31,18 @@ Vue.component(
     require('./components/DocumentsBoard.vue').default
 )
 
+const url = document.querySelector('meta[name=url]').getAttribute('content')
+const path = document.querySelector('meta[name=path]').getAttribute('content')
+
 const app = new Vue({
-    el: '#app'
+    el: '#app',
+    data: {
+        url: url,
+        path: path
+    },
+    methods: {
+        getPath(path) {
+            return this.url + '/' + (this.path ? this.path + '/' : '') + path
+        }
+    }
 })

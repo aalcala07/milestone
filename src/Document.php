@@ -37,6 +37,7 @@ class Document extends Model
 
     public function sections()
     {
+        // return ['one'];
         return $this->hasMany(\Milestone\DocumentSection::class);
     }
 

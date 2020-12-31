@@ -51,6 +51,11 @@
             <div class="document-view flex-grow">
                 <div v-if="activeTab && activeTab.type ==='document'">
                     <h1>{{ activeTab.content.display_title }}</h1>
+                    <div v-for="section in activeTab.content.sections">
+                        <p>Section</p>
+                        <p>{{ section.template_section.name }}</p>
+                        <p>{{ section.template_section.document_template_section_type }}</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -123,7 +128,8 @@ export default {
         return {
             selectedGroup: null,
             selectedYear: null,
-            openTabs: []
+            openTabs: [],
+            activeDocument: null
         }
     },
     computed: {
@@ -184,7 +190,7 @@ export default {
                 return tab.content.display_title
             }
         },
-        openDocument(document) {
+        async openDocument(document) {
 
             console.log(`opening document id ${document.id}`)
             if (this.openTabs.length) {
@@ -201,11 +207,21 @@ export default {
                 }
             }
 
+            document.sections = await this.getDocumentSections(document.id)
+
             this.openTabs.push({
                 isActive: true,
                 type: 'document',
                 content: document
             });
+        },
+        async getDocumentSections(documentId) {
+            const response = await axios.get(this.$root.getPath(`documents/${documentId}/sections`))
+
+            if (response.data) {
+                console.log(response.data.sections);
+                return response.data.sections
+            }
         },
         activateTab(tabIndex) {
             this.openTabs.forEach( (tab) => {

@@ -6,6 +6,8 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="url" content="{{ config('app.url') }}">
+    <meta name="path" content="{{ config('milestone.path') }}">
 
     <title>Milestone</title>
 

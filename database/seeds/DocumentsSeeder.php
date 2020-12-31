@@ -72,7 +72,7 @@ class DocumentsSeeder extends Seeder
                 'name' => 'Markdown Section',
                 'description' => 'Section 2 of journal.',
                 'document_template_id' => 2,
-                'document_template_section_type' => 'text',
+                'document_template_section_type' => 'markdown',
                 'user_id' => 1
             ]
         ]);

@@ -51,10 +51,25 @@
             <div class="document-view flex-grow">
                 <div v-if="activeTab && activeTab.type ==='document'">
                     <h1>{{ activeTab.content.display_title }}</h1>
-                    <div v-for="section in activeTab.content.sections">
-                        <p>Section</p>
-                        <p>{{ section.template_section.name }}</p>
-                        <p>{{ section.template_section.document_template_section_type }}</p>
+                    <div v-for="(section, index) in activeTab.content.sections" :key="section.id">
+                        <div v-if="section.template_section.document_template_section_type === 'text'" class="mb-3">
+                            <p class="small">{{ section.template_section.name }}</p>
+                            <div class="card">
+                                <div class="card-body">
+                                    <textarea v-if="activeDocumentSection === index" style="width: 100%; min-height: 300px;">{{ section.fields[0].content }}</textarea>
+                                    <div v-else="activeDocumentSection === index" @click="activeDocumentSection = index">{{ section.fields[0].content }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if="section.template_section.document_template_section_type === 'markdown'" class="mb-3">
+                            <p class="small">{{ section.template_section.name }}</p>
+                            <div class="card">
+                                <div class="card-body">
+                                    <textarea v-if="activeDocumentSection === index" style="width: 100%; min-height: 300px;">{{ section.fields[0].content }}</textarea>
+                                    <div v-else="activeDocumentSection === index" @click="activeDocumentSection = index">{{ section.fields[0].content }}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -129,7 +144,8 @@ export default {
             selectedGroup: null,
             selectedYear: null,
             openTabs: [],
-            activeDocument: null
+            activeDocument: null,
+            activeDocumentSection: null
         }
     },
     computed: {
@@ -241,5 +257,9 @@ export default {
 </script>
 
 <style>
+
+.document-view {
+    overflow-y: auto;
+}
 
 </style>

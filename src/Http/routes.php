@@ -26,6 +26,7 @@ Route::namespace('Milestone\Http\Controllers')->group(function () {
             Route::prefix('documents')->name('documents.')->group(function() {
                 Route::get('/', 'DocumentController@index')->name('index');
                 Route::get('{document}/sections', 'DocumentController@sections')->name('sections');
+                Route::patch('field/{field}', 'DocumentController@updateField')->name('updateField');
             });
             
             Route::get('settings', 'SettingsController@index')->name('settings.index');

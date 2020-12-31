@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Milestone\Document;
 use Milestone\DocumentGroup;
+use Milestone\DocumentSectionField;
 
 class DocumentController
 {
@@ -125,4 +126,11 @@ class DocumentController
         return response()->json($document->load(['sections', 'sections.templateSection', 'sections.fields']));
     }
 
+    public function updateField(Request $request, DocumentSectionField $field)
+    {
+        $field->content = $request->input('content');
+        $result = $field->save();
+
+        return response()->json($result);
+    }
 }

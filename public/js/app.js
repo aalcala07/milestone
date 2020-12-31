@@ -2299,6 +2299,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         tab.isActive = false;
       });
       this.openTabs[tabIndex].isActive = true;
+      this.activeDocumentSection = null;
     },
     closeTab: function closeTab(tabIndex) {
       var newActiveIndex = tabIndex === 0 ? 1 : tabIndex - 1;
@@ -2308,6 +2309,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       }
 
       this.openTabs.splice(tabIndex, 1);
+    },
+    updateField: function updateField(field) {
+      console.log(field);
+      axios.patch(this.$root.getPath("documents/field/".concat(field.id)), {
+        content: field.content
+      }).then(function (response) {
+        console.log('Updated field');
+        console.log(response);
+      });
     }
   }
 });
@@ -39543,20 +39553,43 @@ var render = function() {
                             _c("div", { staticClass: "card" }, [
                               _c("div", { staticClass: "card-body" }, [
                                 _vm.activeDocumentSection === index
-                                  ? _c(
-                                      "textarea",
-                                      {
-                                        staticStyle: {
-                                          width: "100%",
-                                          "min-height": "300px"
+                                  ? _c("textarea", {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: section.fields[0].content,
+                                          expression:
+                                            "section.fields[0].content"
                                         }
+                                      ],
+                                      staticStyle: {
+                                        width: "100%",
+                                        "min-height": "300px"
                                       },
-                                      [
-                                        _vm._v(
-                                          _vm._s(section.fields[0].content)
-                                        )
-                                      ]
-                                    )
+                                      domProps: {
+                                        value: section.fields[0].content
+                                      },
+                                      on: {
+                                        input: [
+                                          function($event) {
+                                            if ($event.target.composing) {
+                                              return
+                                            }
+                                            _vm.$set(
+                                              section.fields[0],
+                                              "content",
+                                              $event.target.value
+                                            )
+                                          },
+                                          function($event) {
+                                            return _vm.updateField(
+                                              section.fields[0]
+                                            )
+                                          }
+                                        ]
+                                      }
+                                    })
                                   : _c(
                                       "div",
                                       {
@@ -39585,20 +39618,43 @@ var render = function() {
                             _c("div", { staticClass: "card" }, [
                               _c("div", { staticClass: "card-body" }, [
                                 _vm.activeDocumentSection === index
-                                  ? _c(
-                                      "textarea",
-                                      {
-                                        staticStyle: {
-                                          width: "100%",
-                                          "min-height": "300px"
+                                  ? _c("textarea", {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: section.fields[0].content,
+                                          expression:
+                                            "section.fields[0].content"
                                         }
+                                      ],
+                                      staticStyle: {
+                                        width: "100%",
+                                        "min-height": "300px"
                                       },
-                                      [
-                                        _vm._v(
-                                          _vm._s(section.fields[0].content)
-                                        )
-                                      ]
-                                    )
+                                      domProps: {
+                                        value: section.fields[0].content
+                                      },
+                                      on: {
+                                        input: [
+                                          function($event) {
+                                            if ($event.target.composing) {
+                                              return
+                                            }
+                                            _vm.$set(
+                                              section.fields[0],
+                                              "content",
+                                              $event.target.value
+                                            )
+                                          },
+                                          function($event) {
+                                            return _vm.updateField(
+                                              section.fields[0]
+                                            )
+                                          }
+                                        ]
+                                      }
+                                    })
                                   : _c(
                                       "div",
                                       {

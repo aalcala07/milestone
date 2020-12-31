@@ -56,7 +56,7 @@
                             <p class="small">{{ section.template_section.name }}</p>
                             <div class="card">
                                 <div class="card-body">
-                                    <textarea v-if="activeDocumentSection === index" style="width: 100%; min-height: 300px;">{{ section.fields[0].content }}</textarea>
+                                    <textarea v-if="activeDocumentSection === index" style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
                                     <div v-else="activeDocumentSection === index" @click="activeDocumentSection = index">{{ section.fields[0].content }}</div>
                                 </div>
                             </div>
@@ -65,7 +65,7 @@
                             <p class="small">{{ section.template_section.name }}</p>
                             <div class="card">
                                 <div class="card-body">
-                                    <textarea v-if="activeDocumentSection === index" style="width: 100%; min-height: 300px;">{{ section.fields[0].content }}</textarea>
+                                    <textarea v-if="activeDocumentSection === index" style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
                                     <div v-else="activeDocumentSection === index" @click="activeDocumentSection = index">{{ section.fields[0].content }}</div>
                                 </div>
                             </div>
@@ -243,7 +243,8 @@ export default {
             this.openTabs.forEach( (tab) => {
                 tab.isActive = false
             })
-            this.openTabs[tabIndex].isActive = true;
+            this.openTabs[tabIndex].isActive = true
+            this.activeDocumentSection = null
         },
         closeTab(tabIndex) {
             let newActiveIndex = tabIndex === 0 ? 1 : tabIndex - 1
@@ -251,6 +252,14 @@ export default {
                 this.openTabs[newActiveIndex].isActive = true
             }
             this.openTabs.splice(tabIndex, 1)
+        },
+        updateField(field) {
+            console.log(field)
+            axios.patch(this.$root.getPath(`documents/field/${field.id}`), {content: field.content })
+                .then( response => {
+                    console.log('Updated field')
+                    console.log(response)
+                })
         }
     }
 }

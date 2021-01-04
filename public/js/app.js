@@ -2072,22 +2072,118 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['groups'],
   data: function data() {
     return {
+      mutableGroups: this.groups,
       selectedGroup: null,
       selectedYear: null,
       openTabs: [],
       activeDocument: null,
-      activeDocumentSection: null
+      activeDocumentSection: null,
+      showCreateDocumentModal: false,
+      documentTemplates: null,
+      selectedTemplateIndex: null,
+      showRenameDocumentModal: false,
+      showChangeDateDocumentModal: false,
+      showDeleteDocumentModal: false
     };
+  },
+  created: function created() {
+    console.log('created');
+    var self = this;
+    axios.get(this.$root.getPath("documents/templates")).then(function (response) {
+      if (response.data) {
+        self.documentTemplates = response.data;
+      }
+    });
   },
   computed: {
     documentsInSideNav: function documentsInSideNav() {
       // return this.documents[0].years[0].documents
       // return []
-      var _iterator = _createForOfIteratorHelper(this.groups),
+      var _iterator = _createForOfIteratorHelper(this.mutableGroups),
           _step;
 
       try {
@@ -2125,7 +2221,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       // return [];
       if (this.selectedGroup) {
         // show years in type
-        var _iterator3 = _createForOfIteratorHelper(this.groups),
+        var _iterator3 = _createForOfIteratorHelper(this.mutableGroups),
             _step3;
 
         try {
@@ -2148,24 +2244,14 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       } // return types
 
 
-      return this.groups.map(function (group) {
+      return this.mutableGroups.map(function (group) {
         return {
           name: group.name
         };
       });
     },
     activeTab: function activeTab() {
-      if (!this.openTabs.length) {
-        return null;
-      }
-
-      for (var i = 0; i < this.openTabs.length; i++) {
-        if (this.openTabs[i].isActive) {
-          return this.openTabs[i];
-        }
-      }
-
-      return null;
+      return this.getActiveTab();
     }
   },
   methods: {
@@ -2317,6 +2403,162 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       }).then(function (response) {
         console.log('Updated field');
         console.log(response);
+      });
+    },
+    createDocument: function createDocument() {
+      var _this3 = this;
+
+      var template = this.documentTemplates[this.selectedTemplateIndex];
+      var self = this;
+      axios.post(this.$root.getPath('documents/create'), {
+        template_id: template.id
+      }).then(function (response) {
+        console.log(response);
+
+        if (response.data) {
+          self.openDocument(response.data); // Add document to side nav
+
+          var documentGroupId = response.data.document_group_id;
+          var documentYear = parseInt(response.data.display_date.slice(0, 4));
+          var documentAdded = false;
+          var documentGroup = null;
+
+          var _iterator5 = _createForOfIteratorHelper(_this3.mutableGroups),
+              _step5;
+
+          try {
+            for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+              var group = _step5.value;
+
+              if (group.id === documentGroupId) {
+                documentGroup = group;
+              }
+            }
+          } catch (err) {
+            _iterator5.e(err);
+          } finally {
+            _iterator5.f();
+          }
+
+          var _iterator6 = _createForOfIteratorHelper(documentGroup.years),
+              _step6;
+
+          try {
+            for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+              var year = _step6.value;
+
+              if (year.year === documentYear) {
+                year.documents.push(response.data);
+                documentAdded = true;
+              }
+            } // If there's no year, add the year and the document
+
+          } catch (err) {
+            _iterator6.e(err);
+          } finally {
+            _iterator6.f();
+          }
+
+          if (!documentAdded) {
+            documentGroup.years.push({
+              year: documentYear,
+              documents: [response.data]
+            });
+            documentGroup.years.sort(function (a, b) {
+              return b.year - a.year;
+            });
+          }
+
+          self.showCreateDocumentModal = false;
+        }
+      });
+    },
+    getActiveTab: function getActiveTab() {
+      if (!this.openTabs.length) {
+        return null;
+      }
+
+      for (var i = 0; i < this.openTabs.length; i++) {
+        if (this.openTabs[i].isActive) {
+          return this.openTabs[i];
+        }
+      }
+
+      return null;
+    },
+    updateDocumentDate: function updateDocumentDate() {
+      var _this4 = this;
+
+      console.log('update document date');
+      var newDate = this.$refs.changeDateDocumentInput.value;
+      var document = this.getActiveTab().content;
+
+      if (document.publish_date && newDate === document.publish_date.slice(0, 10)) {
+        this.showChangeDateDocumentModal = false;
+        return;
+      }
+
+      axios.patch(this.$root.getPath("documents/".concat(document.id, "/updateDate")), {
+        publish_date: newDate
+      }).then(function (response) {
+        if (response.data) {
+          document.publish_date = newDate;
+          document.display_date = response.data.display_date;
+          document.display_date_relative = response.data.display_date_relative;
+          document.display_title = response.data.display_title;
+          _this4.showChangeDateDocumentModal = false;
+        }
+      });
+    },
+    deleteDocument: function deleteDocument(documentId) {
+      var _this5 = this;
+
+      var document = this.getActiveTab().content;
+      axios["delete"](this.$root.getPath("documents/".concat(documentId))).then(function (response) {
+        if (response.data) {
+          // remove document from tabs
+          for (var i = 0; i < _this5.openTabs.length; i++) {
+            if (_this5.openTabs[i].content.id === documentId) {
+              _this5.closeTab(i);
+            }
+          } // remove document from side nav
+
+
+          var _iterator7 = _createForOfIteratorHelper(_this5.mutableGroups),
+              _step7;
+
+          try {
+            for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+              var group = _step7.value;
+
+              var _iterator8 = _createForOfIteratorHelper(group.years),
+                  _step8;
+
+              try {
+                for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+                  var year = _step8.value;
+
+                  for (var _i = 0; _i < year.documents.length; _i++) {
+                    if (year.documents[_i].id === documentId) {
+                      console.log("Delete document");
+                      year.documents.splice(_i, 1);
+                    }
+                  }
+                }
+              } catch (err) {
+                _iterator8.e(err);
+              } finally {
+                _iterator8.f();
+              }
+            }
+          } catch (err) {
+            _iterator7.e(err);
+          } finally {
+            _iterator7.f();
+          }
+
+          _this5.showDeleteDocumentModal = false;
+        }
       });
     }
   }
@@ -39502,25 +39744,38 @@ var render = function() {
               _vm._v(" "),
               _c("li", { staticClass: "panel-tab" }, [
                 _c(
-                  "svg",
+                  "a",
                   {
-                    staticClass: "bi bi-plus",
-                    attrs: {
-                      xmlns: "http://www.w3.org/2000/svg",
-                      width: "16",
-                      height: "16",
-                      fill: "currentColor",
-                      viewBox: "0 0 16 16"
+                    attrs: { href: "javascript:void(0)" },
+                    on: {
+                      click: function($event) {
+                        _vm.showCreateDocumentModal = true
+                      }
                     }
                   },
                   [
-                    _c("path", {
-                      attrs: {
-                        "fill-rule": "evenodd",
-                        d:
-                          "M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
-                      }
-                    })
+                    _c(
+                      "svg",
+                      {
+                        staticClass: "bi bi-plus",
+                        attrs: {
+                          xmlns: "http://www.w3.org/2000/svg",
+                          width: "16",
+                          height: "16",
+                          fill: "currentColor",
+                          viewBox: "0 0 16 16"
+                        }
+                      },
+                      [
+                        _c("path", {
+                          attrs: {
+                            "fill-rule": "evenodd",
+                            d:
+                              "M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
+                          }
+                        })
+                      ]
+                    )
                   ]
                 )
               ])
@@ -39534,8 +39789,104 @@ var render = function() {
             ? _c(
                 "div",
                 [
-                  _c("h1", [
-                    _vm._v(_vm._s(_vm.activeTab.content.display_title))
+                  _c("div", { staticClass: "d-flex flex-row" }, [
+                    _c("h1", [
+                      _vm._v(_vm._s(_vm.activeTab.content.display_title))
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "ml-auto" }, [
+                      _c("div", { staticClass: "dropdown" }, [
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn",
+                            attrs: {
+                              type: "button",
+                              id: "dropdownMenuButton",
+                              "data-toggle": "dropdown",
+                              "aria-haspopup": "true",
+                              "aria-expanded": "false"
+                            }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              {
+                                staticClass: "bi bi-three-dots",
+                                attrs: {
+                                  xmlns: "http://www.w3.org/2000/svg",
+                                  width: "16",
+                                  height: "16",
+                                  fill: "currentColor",
+                                  viewBox: "0 0 16 16"
+                                }
+                              },
+                              [
+                                _c("path", {
+                                  attrs: {
+                                    d:
+                                      "M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+                                  }
+                                })
+                              ]
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          {
+                            staticClass: "dropdown-menu",
+                            attrs: { "aria-labelledby": "dropdownMenuButton" }
+                          },
+                          [
+                            !_vm.activeTab.content.template.auto_title
+                              ? _c(
+                                  "a",
+                                  {
+                                    staticClass: "dropdown-item",
+                                    attrs: { href: "javascript:void(0)" },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.showRenameDocumentModal = true
+                                      }
+                                    }
+                                  },
+                                  [_vm._v("Rename")]
+                                )
+                              : _vm._e(),
+                            _vm._v(" "),
+                            _c(
+                              "a",
+                              {
+                                staticClass: "dropdown-item",
+                                attrs: { href: "javascript:void(0)" },
+                                on: {
+                                  click: function($event) {
+                                    _vm.showChangeDateDocumentModal = true
+                                  }
+                                }
+                              },
+                              [_vm._v("Change Date")]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "a",
+                              {
+                                staticClass: "dropdown-item",
+                                attrs: { href: "javascript:void(0)" },
+                                on: {
+                                  click: function($event) {
+                                    _vm.showDeleteDocumentModal = true
+                                  }
+                                }
+                              },
+                              [_vm._v("Delete")]
+                            )
+                          ]
+                        )
+                      ])
+                    ])
                   ]),
                   _vm._v(" "),
                   _vm._l(_vm.activeTab.content.sections, function(
@@ -39550,63 +39901,44 @@ var render = function() {
                               _vm._v(_vm._s(section.template_section.name))
                             ]),
                             _vm._v(" "),
-                            _c("div", { staticClass: "card" }, [
-                              _c("div", { staticClass: "card-body" }, [
-                                _vm.activeDocumentSection === index
-                                  ? _c("textarea", {
-                                      directives: [
-                                        {
-                                          name: "model",
-                                          rawName: "v-model",
-                                          value: section.fields[0].content,
-                                          expression:
-                                            "section.fields[0].content"
-                                        }
-                                      ],
-                                      staticStyle: {
-                                        width: "100%",
-                                        "min-height": "300px"
-                                      },
-                                      domProps: {
-                                        value: section.fields[0].content
-                                      },
-                                      on: {
-                                        input: [
-                                          function($event) {
-                                            if ($event.target.composing) {
-                                              return
-                                            }
-                                            _vm.$set(
-                                              section.fields[0],
-                                              "content",
-                                              $event.target.value
-                                            )
-                                          },
-                                          function($event) {
-                                            return _vm.updateField(
-                                              section.fields[0]
-                                            )
-                                          }
-                                        ]
-                                      }
-                                    })
-                                  : _c(
-                                      "div",
-                                      {
-                                        on: {
-                                          click: function($event) {
-                                            _vm.activeDocumentSection = index
-                                          }
-                                        }
-                                      },
-                                      [
-                                        _vm._v(
-                                          _vm._s(section.fields[0].content)
-                                        )
-                                      ]
+                            _c("textarea", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: section.fields[0].content,
+                                  expression: "section.fields[0].content"
+                                }
+                              ],
+                              staticStyle: {
+                                width: "100%",
+                                "min-height": "300px"
+                              },
+                              attrs: {
+                                readonly: _vm.activeDocumentSection !== index
+                              },
+                              domProps: { value: section.fields[0].content },
+                              on: {
+                                click: function($event) {
+                                  _vm.activeDocumentSection = index
+                                },
+                                input: [
+                                  function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.$set(
+                                      section.fields[0],
+                                      "content",
+                                      $event.target.value
                                     )
-                              ])
-                            ])
+                                  },
+                                  function($event) {
+                                    return _vm.updateField(section.fields[0])
+                                  }
+                                ]
+                              }
+                            })
                           ])
                         : section.template_section
                             .document_template_section_type === "markdown"
@@ -39615,63 +39947,44 @@ var render = function() {
                               _vm._v(_vm._s(section.template_section.name))
                             ]),
                             _vm._v(" "),
-                            _c("div", { staticClass: "card" }, [
-                              _c("div", { staticClass: "card-body" }, [
-                                _vm.activeDocumentSection === index
-                                  ? _c("textarea", {
-                                      directives: [
-                                        {
-                                          name: "model",
-                                          rawName: "v-model",
-                                          value: section.fields[0].content,
-                                          expression:
-                                            "section.fields[0].content"
-                                        }
-                                      ],
-                                      staticStyle: {
-                                        width: "100%",
-                                        "min-height": "300px"
-                                      },
-                                      domProps: {
-                                        value: section.fields[0].content
-                                      },
-                                      on: {
-                                        input: [
-                                          function($event) {
-                                            if ($event.target.composing) {
-                                              return
-                                            }
-                                            _vm.$set(
-                                              section.fields[0],
-                                              "content",
-                                              $event.target.value
-                                            )
-                                          },
-                                          function($event) {
-                                            return _vm.updateField(
-                                              section.fields[0]
-                                            )
-                                          }
-                                        ]
-                                      }
-                                    })
-                                  : _c(
-                                      "div",
-                                      {
-                                        on: {
-                                          click: function($event) {
-                                            _vm.activeDocumentSection = index
-                                          }
-                                        }
-                                      },
-                                      [
-                                        _vm._v(
-                                          _vm._s(section.fields[0].content)
-                                        )
-                                      ]
+                            _c("textarea", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: section.fields[0].content,
+                                  expression: "section.fields[0].content"
+                                }
+                              ],
+                              staticStyle: {
+                                width: "100%",
+                                "min-height": "300px"
+                              },
+                              attrs: {
+                                readonly: _vm.activeDocumentSection !== index
+                              },
+                              domProps: { value: section.fields[0].content },
+                              on: {
+                                click: function($event) {
+                                  _vm.activeDocumentSection = index
+                                },
+                                input: [
+                                  function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.$set(
+                                      section.fields[0],
+                                      "content",
+                                      $event.target.value
                                     )
-                              ])
-                            ])
+                                  },
+                                  function($event) {
+                                    return _vm.updateField(section.fields[0])
+                                  }
+                                ]
+                              }
+                            })
                           ])
                         : _vm._e()
                     ])
@@ -39684,7 +39997,296 @@ var render = function() {
       ]
     ),
     _vm._v(" "),
-    _vm._m(1)
+    _vm._m(1),
+    _vm._v(" "),
+    _vm.showCreateDocumentModal
+      ? _c(
+          "div",
+          {
+            staticClass: "modal",
+            staticStyle: { display: "block" },
+            attrs: { tabindex: "-1" }
+          },
+          [
+            _c("div", { staticClass: "modal-dialog" }, [
+              _c("div", { staticClass: "modal-content" }, [
+                _c("div", { staticClass: "modal-header" }, [
+                  _c("h5", { staticClass: "modal-title" }, [
+                    _vm._v("Create Document")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "close",
+                      attrs: {
+                        type: "button",
+                        "data-dismiss": "modal",
+                        "aria-label": "Close"
+                      },
+                      on: {
+                        click: function($event) {
+                          _vm.showCreateDocumentModal = false
+                        }
+                      }
+                    },
+                    [
+                      _c("span", { attrs: { "aria-hidden": "true" } }, [
+                        _vm._v("×")
+                      ])
+                    ]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "modal-body" }, [
+                  _c("p", [
+                    _vm._v("Choose a template for creating a new document:")
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "form-group" }, [
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.selectedTemplateIndex,
+                            expression: "selectedTemplateIndex"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        on: {
+                          change: function($event) {
+                            var $$selectedVal = Array.prototype.filter
+                              .call($event.target.options, function(o) {
+                                return o.selected
+                              })
+                              .map(function(o) {
+                                var val = "_value" in o ? o._value : o.value
+                                return val
+                              })
+                            _vm.selectedTemplateIndex = $event.target.multiple
+                              ? $$selectedVal
+                              : $$selectedVal[0]
+                          }
+                        }
+                      },
+                      _vm._l(_vm.documentTemplates, function(template) {
+                        return _c(
+                          "option",
+                          { domProps: { value: template.id } },
+                          [_vm._v(_vm._s(template.name))]
+                        )
+                      }),
+                      0
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { type: "button" },
+                      on: {
+                        click: function($event) {
+                          return _vm.createDocument()
+                        }
+                      }
+                    },
+                    [_vm._v("Create Document")]
+                  )
+                ])
+              ])
+            ])
+          ]
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.showRenameDocumentModal
+      ? _c(
+          "div",
+          {
+            staticClass: "modal",
+            staticStyle: { display: "block" },
+            attrs: { tabindex: "-1" }
+          },
+          [
+            _c("div", { staticClass: "modal-dialog" }, [
+              _c("div", { staticClass: "modal-content" }, [
+                _c("div", { staticClass: "modal-header" }, [
+                  _c("h5", { staticClass: "modal-title" }, [
+                    _vm._v("Rename Document")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "close",
+                      attrs: {
+                        type: "button",
+                        "data-dismiss": "modal",
+                        "aria-label": "Close"
+                      },
+                      on: {
+                        click: function($event) {
+                          _vm.showRenameDocumentModal = false
+                        }
+                      }
+                    },
+                    [
+                      _c("span", { attrs: { "aria-hidden": "true" } }, [
+                        _vm._v("×")
+                      ])
+                    ]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "modal-body" })
+              ])
+            ])
+          ]
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.showChangeDateDocumentModal
+      ? _c(
+          "div",
+          {
+            staticClass: "modal",
+            staticStyle: { display: "block" },
+            attrs: { tabindex: "-1" }
+          },
+          [
+            _c("div", { staticClass: "modal-dialog" }, [
+              _c("div", { staticClass: "modal-content" }, [
+                _c("div", { staticClass: "modal-header" }, [
+                  _c("h5", { staticClass: "modal-title" }, [
+                    _vm._v("Change Date")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "close",
+                      attrs: {
+                        type: "button",
+                        "data-dismiss": "modal",
+                        "aria-label": "Close"
+                      },
+                      on: {
+                        click: function($event) {
+                          _vm.showChangeDateDocumentModal = false
+                        }
+                      }
+                    },
+                    [
+                      _c("span", { attrs: { "aria-hidden": "true" } }, [
+                        _vm._v("×")
+                      ])
+                    ]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "modal-body" }, [
+                  _c("p", [_vm._v("Change the date for this document.")]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "form-group" }, [
+                    _c("input", {
+                      ref: "changeDateDocumentInput",
+                      staticClass: "form-control",
+                      attrs: { type: "date" },
+                      domProps: {
+                        value: _vm.activeTab.content.publish_date
+                          ? _vm.activeTab.content.publish_date.slice(0, 10)
+                          : _vm.activeTab.content.created_at.slice(0, 10)
+                      }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { type: "button" },
+                      on: {
+                        click: function($event) {
+                          return _vm.updateDocumentDate()
+                        }
+                      }
+                    },
+                    [_vm._v("Update Date")]
+                  )
+                ])
+              ])
+            ])
+          ]
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.showDeleteDocumentModal
+      ? _c(
+          "div",
+          {
+            staticClass: "modal",
+            staticStyle: { display: "block" },
+            attrs: { tabindex: "-1" }
+          },
+          [
+            _c("div", { staticClass: "modal-dialog" }, [
+              _c("div", { staticClass: "modal-content" }, [
+                _c("div", { staticClass: "modal-header" }, [
+                  _c("h5", { staticClass: "modal-title" }, [
+                    _vm._v("Delete Document")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "close",
+                      attrs: {
+                        type: "button",
+                        "data-dismiss": "modal",
+                        "aria-label": "Close"
+                      },
+                      on: {
+                        click: function($event) {
+                          _vm.showDeleteDocumentModal = false
+                        }
+                      }
+                    },
+                    [
+                      _c("span", { attrs: { "aria-hidden": "true" } }, [
+                        _vm._v("×")
+                      ])
+                    ]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "modal-body" }, [
+                  _c("p", [
+                    _vm._v("Are you sure you want to delete this document?")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { type: "button" },
+                      on: {
+                        click: function($event) {
+                          return _vm.deleteDocument(_vm.activeTab.content.id)
+                        }
+                      }
+                    },
+                    [_vm._v("Delete Document")]
+                  )
+                ])
+              ])
+            ])
+          ]
+        )
+      : _vm._e()
   ])
 }
 var staticRenderFns = [

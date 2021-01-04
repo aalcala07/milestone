@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Milestone\Document;
 use Milestone\DocumentGroup;
+use Milestone\DocumentTemplate;
+use Milestone\DocumentSection;
 use Milestone\DocumentSectionField;
 
 class DocumentController
@@ -24,101 +26,6 @@ class DocumentController
         // echo "<pre>" . $groups->toJson(JSON_PRETTY_PRINT) . "</pre>"; die;
 
         return view('milestone::documents.index', compact('groups'));
-
-        $groups = collect(
-            [
-                [
-                    'type' => 'Journals',
-                    'years' => [
-                        [
-                            'year' => 2020,
-                            'documents' => [
-                                [
-                                    'title' => 'Journal 1',
-                                    'body' => 'Journal body text',
-                                    'date' => '12/12/2020'
-                                ],
-                                [
-                                    'title' => 'Journal 2',
-                                    'body' => 'Journal body text',
-                                    'date' => '12/12/2020'
-                                ],
-                                [
-                                    'title' => 'Journal 3',
-                                    'body' => 'Journal body text',
-                                    'date' => '12/12/2020'
-                                ],
-                            ]
-                        ],
-                        [
-                            'year' => 2019,
-                            'documents' => [
-                                [
-                                    'title' => 'Journal 1',
-                                    'body' => 'Journal body text',
-                                    'date' => '12/12/2019'
-                                ],
-                                [
-                                    'title' => 'Journal 2',
-                                    'body' => 'Journal body text',
-                                    'date' => '12/12/2019'
-                                ],
-                                [
-                                    'title' => 'Journal 3',
-                                    'body' => 'Journal body text',
-                                    'date' => '12/12/2019'
-                                ],
-                            ]
-                        ],
-                    ]
-                ],
-                [
-                    'type' => 'Notes',
-                    'years' => [
-                        [
-                            'year' => 2020,
-                            'documents' => [
-                                [
-                                    'title' => 'Note 1',
-                                    'body' => 'Note body text',
-                                    'date' => '12/12/2020'
-                                ],
-                                [
-                                    'title' => 'Note 2',
-                                    'body' => 'Note body text',
-                                    'date' => '12/12/2020'
-                                ],
-                                [
-                                    'title' => 'Note 3',
-                                    'body' => 'Note body text',
-                                    'date' => '12/12/2020'
-                                ],
-                            ]
-                        ],
-                        [
-                            'year' => 2019,
-                            'documents' => [
-                                [
-                                    'title' => 'Note 1',
-                                    'body' => 'Note body text',
-                                    'date' => '12/12/2019'
-                                ],
-                                [
-                                    'title' => 'Note 2',
-                                    'body' => 'Note body text',
-                                    'date' => '12/12/2019'
-                                ],
-                                [
-                                    'title' => 'Note 3',
-                                    'body' => 'Note body text',
-                                    'date' => '12/12/2019'
-                                ],
-                            ]
-                        ],
-                    ]
-                ]
-            ]);
-        return view('milestone::documents.index', compact('groups'));
     }
 
     public function sections(Request $request, Document $document)
@@ -131,6 +38,56 @@ class DocumentController
         $field->content = $request->input('content');
         $result = $field->save();
 
+        return response()->json($result);
+    }
+
+    public function templates(Request $request)
+    {
+        $templates = DocumentTemplate::where('user_id', auth()->user()->id)->get();
+        return response()->json($templates);
+    }
+
+    public function create(Request $request)
+    {
+        $template = DocumentTemplate::find($request->input('template_id'));
+        $document = new Document();
+        $document->user_id = auth()->user()->id;
+        $document->document_template_id = $template->id;
+        $document->document_group_id = $template->group->id;
+        $document->save();
+
+        // Add sections
+        foreach ($template->sections as $section) {
+            $document->sections()->save(new DocumentSection([
+                'document_template_section_id' => $section->id,
+                'user_id' => auth()->user()->id
+            ]));
+        }
+
+        // Add fields
+        // TODO: Add correct fields for each section based on type
+        $document->sections->each( function ($section) use ($document) {
+            $section->fields()->save(new DocumentSectionField([
+                'document_id' => $document->id,
+                'content' => '',
+                'user_id' => $document->user_id
+            ]));
+        });
+
+        return response()->json($document);
+    }
+
+    public function updateDate(Request $request, Document $document)
+    {
+        $document->publish_date = $request->input('publish_date');
+        $result = $document->save();
+
+        return response()->json($result ? $document : $result);
+    }
+
+    public function destroy(Request $request, Document $document)
+    {
+        $result = $document->delete();
         return response()->json($result);
     }
 }

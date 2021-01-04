@@ -48,7 +48,7 @@ class Document extends Model
 
     protected function getDisplayDatetime()
     {
-        return $this->template->use_publish_date ? $this->publish_date : $this->created_at;
+        return $this->publish_date ? $this->publish_date : $this->created_at;
     }
 
     protected function getDisplayDateAttribute()
@@ -60,7 +60,11 @@ class Document extends Model
     protected function getDisplayDateRelativeAttribute()
     {
         $minutes = Carbon::now()->diffInMinutes($this->getDisplayDatetime());
-        return Carbon::now()->subMinutes($minutes)->diffForHumans();  
+        if (Carbon::now() > new Carbon($this->getDisplayDatetime())) {
+            return Carbon::now()->subMinutes($minutes)->diffForHumans();  
+        } else {
+            return Carbon::now()->addMinutes($minutes)->diffForHumans();  
+        }
     }
 
     protected function getTextPreviewAttribute()

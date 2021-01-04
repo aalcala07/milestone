@@ -29,7 +29,7 @@ class DocumentTemplate extends Model
 
     public function group()
     {
-        return $this->belongsTo(\Milestone\DocumentGroup::class);
+        return $this->belongsTo(\Milestone\DocumentGroup::class, 'document_group_id');
     }
 
     public function sections()

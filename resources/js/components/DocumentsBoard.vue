@@ -43,32 +43,42 @@
                             <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                         </svg></a>
                     </li>
-                    <li class="panel-tab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                        </svg></li>
+                    <li class="panel-tab">
+                        <a href="javascript:void(0)" @click="showCreateDocumentModal = true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                        </a>
+                    </li>
                 </ul>
             </nav>
             <div class="document-view flex-grow">
                 <div v-if="activeTab && activeTab.type ==='document'">
-                    <h1>{{ activeTab.content.display_title }}</h1>
-                    <div v-for="(section, index) in activeTab.content.sections" :key="section.id">
-                        <div v-if="section.template_section.document_template_section_type === 'text'" class="mb-3">
-                            <p class="small">{{ section.template_section.name }}</p>
-                            <div class="card">
-                                <div class="card-body">
-                                    <textarea v-if="activeDocumentSection === index" style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
-                                    <div v-else="activeDocumentSection === index" @click="activeDocumentSection = index">{{ section.fields[0].content }}</div>
+                    <div class="d-flex flex-row">
+                        <h1>{{ activeTab.content.display_title }}</h1>
+                        <div class="ml-auto">
+                            <div class="dropdown">
+                                <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                                        <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                    </svg>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a v-if="!activeTab.content.template.auto_title" class="dropdown-item" href="javascript:void(0)" @click="showRenameDocumentModal = true">Rename</a>
+                                    <a class="dropdown-item" href="javascript:void(0)" @click="showChangeDateDocumentModal = true">Change Date</a>
+                                    <a class="dropdown-item" href="javascript:void(0)" @click="showDeleteDocumentModal = true">Delete</a>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div v-for="(section, index) in activeTab.content.sections" :key="section.id">
+                        <div v-if="section.template_section.document_template_section_type === 'text'" class="mb-3">
+                            <p class="small">{{ section.template_section.name }}</p>
+                            <textarea :readonly="activeDocumentSection !== index" @click="activeDocumentSection = index" style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
+                        </div>
                         <div v-else-if="section.template_section.document_template_section_type === 'markdown'" class="mb-3">
                             <p class="small">{{ section.template_section.name }}</p>
-                            <div class="card">
-                                <div class="card-body">
-                                    <textarea v-if="activeDocumentSection === index" style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
-                                    <div v-else="activeDocumentSection === index" @click="activeDocumentSection = index">{{ section.fields[0].content }}</div>
-                                </div>
-                            </div>
+                            <textarea :readonly="activeDocumentSection !== index" @click="activeDocumentSection = index"style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
                         </div>
                     </div>
                 </div>
@@ -133,6 +143,76 @@
                 </form>
             </div>
         </div>
+        <div v-if="showCreateDocumentModal" class="modal" tabindex="-1" style="display: block;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Create Document</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="showCreateDocumentModal = false">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Choose a template for creating a new document:</p>
+                        <div class="form-group">
+                            <select class="form-control" v-model="selectedTemplateIndex">
+                                <option v-for="template in documentTemplates" :value="template.id">{{ template.name }}</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary" @click="createDocument()">Create Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="showRenameDocumentModal" class="modal" tabindex="-1" style="display: block;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Rename Document</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="showRenameDocumentModal = false">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="showChangeDateDocumentModal" class="modal" tabindex="-1" style="display: block;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Change Date</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="showChangeDateDocumentModal = false">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Change the date for this document.</p>
+                        <div class="form-group">
+                            <input class="form-control" type="date" ref="changeDateDocumentInput" :value="activeTab.content.publish_date ? activeTab.content.publish_date.slice(0,10) : activeTab.content.created_at.slice(0,10)">
+                        </div>
+                        <button type="button" class="btn btn-primary" @click="updateDocumentDate()">Update Date</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="showDeleteDocumentModal" class="modal" tabindex="-1" style="display: block;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Document</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="showDeleteDocumentModal = false">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this document?</p>
+                        <button type="button" class="btn btn-primary" @click="deleteDocument(activeTab.content.id)">Delete Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -141,18 +221,36 @@ export default {
     props: ['groups'],
     data() {
         return {
+            mutableGroups: this.groups,
             selectedGroup: null,
             selectedYear: null,
             openTabs: [],
             activeDocument: null,
-            activeDocumentSection: null
+            activeDocumentSection: null,
+            showCreateDocumentModal: false,
+            documentTemplates: null,
+            selectedTemplateIndex: null,
+            showRenameDocumentModal: false,
+            showChangeDateDocumentModal: false,
+            showDeleteDocumentModal: false
         }
+    },
+    created() {
+        console.log('created')
+        var self = this
+
+        axios.get(this.$root.getPath(`documents/templates`))
+            .then( response => {
+                if (response.data) {
+                    self.documentTemplates = response.data
+                }
+            })
     },
     computed: {
         documentsInSideNav: function() {
             // return this.documents[0].years[0].documents
             // return []
-            for (let group of this.groups) {
+            for (let group of this.mutableGroups) {
                 if (group.name === this.selectedGroup) {
                     for (let year of group.years) {
                         if (year.year === this.selectedYear) {
@@ -167,7 +265,7 @@ export default {
             // return [];
             if (this.selectedGroup) {
                 // show years in type
-                for (let group of this.groups) {
+                for (let group of this.mutableGroups) {
                     if (group.name === this.selectedGroup) {
                         return group.years.map( (year) => {
                             return { name: year.year }
@@ -177,20 +275,12 @@ export default {
             }
 
             // return types
-            return this.groups.map( (group) => {
+            return this.mutableGroups.map( (group) => {
                 return { name: group.name }
             })
         },
         activeTab: function() {
-            if (!this.openTabs.length) {
-                return null
-            }
-            for (let i = 0; i < this.openTabs.length; i++) {
-                if (this.openTabs[i].isActive) {
-                    return this.openTabs[i]
-                }
-            }
-            return null
+            return this.getActiveTab()
         }
     },
     methods: {
@@ -259,6 +349,116 @@ export default {
                 .then( response => {
                     console.log('Updated field')
                     console.log(response)
+                })
+        },
+        createDocument() {
+            let template = this.documentTemplates[this.selectedTemplateIndex]
+
+            var self = this
+            
+            axios.post(this.$root.getPath('documents/create'), {template_id: template.id })
+                .then( response => {
+                    console.log(response)
+
+                    if (response.data) {
+
+                        self.openDocument(response.data)
+
+                        // Add document to side nav
+                        let documentGroupId = response.data.document_group_id
+                        let documentYear = parseInt(response.data.display_date.slice(0,4))
+                        let documentAdded = false
+                        let documentGroup = null
+
+                        for (let group of this.mutableGroups) {
+                            if (group.id === documentGroupId) {
+                                documentGroup = group
+                            }
+                        }
+
+                        for (let year of documentGroup.years) {
+                            if (year.year === documentYear) {
+                                year.documents.push(response.data)
+                                documentAdded = true
+                            }
+                        }
+
+                        // If there's no year, add the year and the document
+                        if (!documentAdded) {
+                            documentGroup.years.push({
+                                year: documentYear,
+                                documents: [response.data]
+                            })
+                            documentGroup.years.sort((a,b) => {
+                                return b.year - a.year
+                            })
+                        }
+
+                        self.showCreateDocumentModal = false
+                    }
+                })
+        },
+        getActiveTab() {
+            if (!this.openTabs.length) {
+                return null
+            }
+            for (let i = 0; i < this.openTabs.length; i++) {
+                if (this.openTabs[i].isActive) {
+                    return this.openTabs[i]
+                }
+            }
+            return null
+        },
+        updateDocumentDate() {
+            console.log('update document date')
+            let newDate = this.$refs.changeDateDocumentInput.value
+            let document = this.getActiveTab().content
+
+            if (document.publish_date && newDate === document.publish_date.slice(0,10)) {
+                this.showChangeDateDocumentModal = false
+                return
+            }
+
+            axios.patch(this.$root.getPath(`documents/${document.id}/updateDate`), {publish_date: newDate })
+                .then( response => {
+                    if (response.data) {
+                        document.publish_date = newDate
+                        document.display_date = response.data.display_date
+                        document.display_date_relative = response.data.display_date_relative
+                        document.display_title = response.data.display_title
+                        this.showChangeDateDocumentModal = false
+                    }
+                })
+
+        },
+        deleteDocument(documentId) {
+            let document = this.getActiveTab().content
+
+            axios.delete(this.$root.getPath(`documents/${documentId}`))
+                .then( response => {
+                    if (response.data) {
+
+                        // remove document from tabs
+                        for (let i = 0; i < this.openTabs.length; i++) {
+                            if (this.openTabs[i].content.id === documentId) {
+                                this.closeTab(i)
+                            }
+                        }
+
+                        // remove document from side nav
+                        for (let group of this.mutableGroups) {
+                            for (let year of group.years) {
+                                for (let i = 0; i < year.documents.length; i++) {
+                                    if (year.documents[i].id === documentId) {
+                                        console.log(`Delete document`)
+                                        year.documents.splice(i, 1)
+                                    }
+                                }
+                            }
+                        }
+
+                        this.showDeleteDocumentModal = false
+                    }
                 })
         }
     }

@@ -34,7 +34,7 @@ class CreateDocumentsTables extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->unsignedBigInteger('document_template_id');
-            $table->enum('document_template_section_type', ['markdown', 'text']);
+            $table->enum('document_template_section_type', ['markdown', 'text', 'agenda', 'links', 'list']);
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
         });

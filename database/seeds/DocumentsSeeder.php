@@ -33,24 +33,46 @@ class DocumentsSeeder extends Seeder
             [
                 'name' => 'Journals',
                 'user_id' => 1
-            ]
+            ],
+            [
+                'name' => 'Notes',
+                'user_id' => 1
+            ],
+            [
+                'name' => 'Reviews',
+                'user_id' => 1
+            ],
         ]);
 
         DocumentTemplate::insert([
             [
                 'name' => 'Markdown Journal Template',
                 'auto_title' => 'Journal {date}',
-                'use_publish_date' => false,
+                'use_publish_date' => true,
                 'document_group_id' => 1,
                 'user_id' => 1
             ],
             [
                 'name' => 'Sectioned Journal Template (2021)',
                 'auto_title' => 'Journal {date}',
-                'use_publish_date' => false,
+                'use_publish_date' => true,
                 'document_group_id' => 1,
                 'user_id' => 1
-            ]
+            ],
+            [
+                'name' => 'Notes Template',
+                'auto_title' => null,
+                'use_publish_date' => false,
+                'document_group_id' => 2,
+                'user_id' => 1
+            ],
+            [
+                'name' => 'Review Template',
+                'auto_title' => 'Review {date}',
+                'use_publish_date' => true,
+                'document_group_id' => 3,
+                'user_id' => 1
+            ],
         ]);
 
         DocumentTemplateSection::insert([
@@ -73,6 +95,34 @@ class DocumentsSeeder extends Seeder
                 'description' => 'Section 2 of journal.',
                 'document_template_id' => 2,
                 'document_template_section_type' => 'markdown',
+                'user_id' => 1
+            ],
+            [
+                'name' => 'Body Section',
+                'description' => 'Add the content for the note.',
+                'document_template_id' => 3,
+                'document_template_section_type' => 'markdown',
+                'user_id' => 1
+            ],
+            [
+                'name' => 'Reference Section',
+                'description' => 'List all links to references.',
+                'document_template_id' => 3,
+                'document_template_section_type' => 'links',
+                'user_id' => 1
+            ],
+            [
+                'name' => 'Agenda',
+                'description' => 'List of topics to discuss.',
+                'document_template_id' => 4,
+                'document_template_section_type' => 'agenda',
+                'user_id' => 1
+            ],
+            [
+                'name' => 'Actions',
+                'description' => 'List of actions to take.',
+                'document_template_id' => 4,
+                'document_template_section_type' => 'list',
                 'user_id' => 1
             ]
         ]);

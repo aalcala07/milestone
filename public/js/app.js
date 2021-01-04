@@ -2164,7 +2164,6 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       activeDocumentSection: null,
       showCreateDocumentModal: false,
       documentTemplates: null,
-      selectedTemplateIndex: null,
       showRenameDocumentModal: false,
       showChangeDateDocumentModal: false,
       showDeleteDocumentModal: false
@@ -2408,10 +2407,10 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     createDocument: function createDocument() {
       var _this3 = this;
 
-      var template = this.documentTemplates[this.selectedTemplateIndex];
+      var templateId = this.$refs.createDocumentTemplateId.value;
       var self = this;
       axios.post(this.$root.getPath('documents/create'), {
-        template_id: template.id
+        template_id: templateId
       }).then(function (response) {
         console.log(response);
 
@@ -39790,7 +39789,7 @@ var render = function() {
                 "div",
                 [
                   _c("div", { staticClass: "d-flex flex-row" }, [
-                    _c("h1", [
+                    _c("h3", [
                       _vm._v(_vm._s(_vm.activeTab.content.display_title))
                     ]),
                     _vm._v(" "),
@@ -40047,30 +40046,8 @@ var render = function() {
                     _c(
                       "select",
                       {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.selectedTemplateIndex,
-                            expression: "selectedTemplateIndex"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        on: {
-                          change: function($event) {
-                            var $$selectedVal = Array.prototype.filter
-                              .call($event.target.options, function(o) {
-                                return o.selected
-                              })
-                              .map(function(o) {
-                                var val = "_value" in o ? o._value : o.value
-                                return val
-                              })
-                            _vm.selectedTemplateIndex = $event.target.multiple
-                              ? $$selectedVal
-                              : $$selectedVal[0]
-                          }
-                        }
+                        ref: "createDocumentTemplateId",
+                        staticClass: "form-control"
                       },
                       _vm._l(_vm.documentTemplates, function(template) {
                         return _c(

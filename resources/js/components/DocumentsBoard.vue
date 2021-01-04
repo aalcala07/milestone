@@ -55,7 +55,7 @@
             <div class="document-view flex-grow">
                 <div v-if="activeTab && activeTab.type ==='document'">
                     <div class="d-flex flex-row">
-                        <h1>{{ activeTab.content.display_title }}</h1>
+                        <h3>{{ activeTab.content.display_title }}</h3>
                         <div class="ml-auto">
                             <div class="dropdown">
                                 <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -155,7 +155,7 @@
                     <div class="modal-body">
                         <p>Choose a template for creating a new document:</p>
                         <div class="form-group">
-                            <select class="form-control" v-model="selectedTemplateIndex">
+                            <select class="form-control" ref="createDocumentTemplateId">
                                 <option v-for="template in documentTemplates" :value="template.id">{{ template.name }}</option>
                             </select>
                         </div>
@@ -229,7 +229,6 @@ export default {
             activeDocumentSection: null,
             showCreateDocumentModal: false,
             documentTemplates: null,
-            selectedTemplateIndex: null,
             showRenameDocumentModal: false,
             showChangeDateDocumentModal: false,
             showDeleteDocumentModal: false
@@ -352,11 +351,11 @@ export default {
                 })
         },
         createDocument() {
-            let template = this.documentTemplates[this.selectedTemplateIndex]
+            let templateId = this.$refs.createDocumentTemplateId.value
 
             var self = this
             
-            axios.post(this.$root.getPath('documents/create'), {template_id: template.id })
+            axios.post(this.$root.getPath('documents/create'), {template_id: templateId })
                 .then( response => {
                     console.log(response)
 

@@ -21,6 +21,15 @@ class DocumentSectionField extends Model
         'user_id'
     ];
 
+    protected $casts = [
+        'data' => 'array'
+    ];
+
+    public function setDataAttribute($data)
+	{
+	    $this->attributes['data'] = json_encode($data);
+	}
+
     public function user()
     {
         return $this->belongsTo(\App\User::class);

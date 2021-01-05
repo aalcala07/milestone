@@ -33,14 +33,6 @@ class DocumentController
         return response()->json($document->load(['sections', 'sections.templateSection', 'sections.fields']));
     }
 
-    public function updateField(Request $request, DocumentSectionField $field)
-    {
-        $field->content = $request->input('content');
-        $result = $field->save();
-
-        return response()->json($result);
-    }
-
     public function templates(Request $request)
     {
         $templates = DocumentTemplate::where('user_id', auth()->user()->id)->get();
@@ -70,6 +62,7 @@ class DocumentController
             $section->fields()->save(new DocumentSectionField([
                 'document_id' => $document->id,
                 'content' => '',
+                'data' => null,
                 'user_id' => $document->user_id
             ]));
         });
@@ -89,6 +82,19 @@ class DocumentController
         $document->publish_date = $request->input('publish_date');
         $result = $document->save();
         return response()->json($result ? $document : $result);
+    }
+
+    public function updateField(Request $request, DocumentSectionField $field)
+    {
+        if ($request->has('content')) {
+            $field->content = $request->input('content');
+        }
+        if ($request->has('data')) {
+            $field->data = $request->input('data');
+        }
+        $result = $field->save();
+
+        return response()->json($result ? $field : $result);
     }
 
     public function destroy(Request $request, Document $document)

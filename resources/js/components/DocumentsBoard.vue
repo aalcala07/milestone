@@ -52,7 +52,7 @@
                     </li>
                 </ul>
             </nav>
-            <div class="document-view flex-grow">
+            <div class="document-view flex-grow pr-3">
                 <div v-if="activeTab && activeTab.type ==='document'">
                     <div class="d-flex flex-row">
                         <h3>{{ activeTab.content.display_title }}</h3>
@@ -79,6 +79,44 @@
                         <div v-else-if="section.template_section.document_template_section_type === 'markdown'" class="mb-3">
                             <p class="small">{{ section.template_section.name }}</p>
                             <textarea :readonly="activeDocumentSection !== index" @click="activeDocumentSection = index"style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
+                        </div>
+                        <div v-else-if="section.template_section.document_template_section_type === 'agenda'" class="mt-3 mb-3">
+                            <h3 class="mb-3">{{ section.template_section.name }}</h3>
+                            <table v-if="fieldItems(section.fields[0])" class="table table-sm table-borderless table-hover mb-3">
+                                <tbody>
+                                    <tr v-for="(item, itemIndex) in fieldItems(section.fields[0])">
+                                        <td>{{ itemIndex + 1 }}. <input type="text" v-model="item.name" style="border: none; padding: 2px 10px" @input="updateDataField(section.fields[0]); $forceUpdate()"></td>
+                                        <td>
+                                            <a href="javascript:void(0)" @click="deleteAgendaItem(section.fields[0], itemIndex)">
+                                                <i class="bi bi-x"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                            </svg></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div v-else>
+                                <p>No agenda items</p>
+                            </div>
+                            <form class="form-inline mb-4" @submit.prevent>
+                                <div class="form-group mr-2">
+                                    <input type="text" ref="addAgendaItemInput" class="form-control" placeholder="New agenda item...">
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary" @click="addAgendaItem(section.fields[0])">Add</button>
+                            </form>
+                            <div v-if="fieldItems(section.fields[0])">
+                                <div v-for="(item, itemIndex) in fieldItems(section.fields[0])" class="form-group">
+                                    <h4>{{ section.fields[0].data.items[itemIndex].name }}</h4>
+                                    <textarea class="form-control" :readonly="activeTab.focusFieldIndex !== itemIndex" @click="activeTab.focusFieldIndex = itemIndex" style="min-height: 300px;" v-model="section.fields[0].data.items[itemIndex].content" @input="updateDataField(section.fields[0])"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if="section.template_section.document_template_section_type === 'links'" class="mb-3">
+                            <p class="small">{{ section.template_section.name }}</p>
+                            <textarea :readonly="activeDocumentSection !== index" @click="activeDocumentSection = index" style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
+                        </div>
+                        <div v-else-if="section.template_section.document_template_section_type === 'list'" class="mb-3">
+                            <p class="small">{{ section.template_section.name }}</p>
                         </div>
                     </div>
                 </div>
@@ -322,7 +360,8 @@ export default {
             this.openTabs.push({
                 isActive: true,
                 type: 'document',
-                content: document
+                content: document,
+                focusFieldIndex: 0
             });
         },
         async getDocumentSections(documentId) {
@@ -354,6 +393,37 @@ export default {
                     console.log('Updated field')
                     console.log(response)
                 })
+        },
+        updateDataField(field) {
+            axios.patch(this.$root.getPath(`documents/field/${field.id}`), {data: field.data })
+                .then( response => {
+                    console.log('Updated field')
+                    console.log(response)
+                })
+        },
+        addAgendaItem(field) {
+            console.log('addAgendaItem')
+
+            let item = {
+                name: this.$refs.addAgendaItemInput[0].value,
+                content: ''
+            }
+            if (field.data && 'items' in field.data) {
+                field.data.items.push(item)
+            } else {
+                field.data = {
+                    items: [item]
+                }
+            }
+
+            this.$refs.addAgendaItemInput[0].value = ''
+            
+            this.updateDataField(field)
+            this.$forceUpdate();
+        },
+        deleteAgendaItem(field, itemIndex) {
+            console.log('deleteAgendaItem')
+            console.log({field, itemIndex})
         },
         createDocument() {
             let templateId = this.$refs.createDocumentTemplateId.value
@@ -482,6 +552,9 @@ export default {
                         this.showDeleteDocumentModal = false
                     }
                 })
+        },
+        fieldItems(field) {
+            return (field.data && 'items' in field.data) ? field.data.items : null
         }
     }
 }

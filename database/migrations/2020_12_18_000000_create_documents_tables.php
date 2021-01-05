@@ -42,7 +42,8 @@ class CreateDocumentsTables extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('document_id');
             $table->unsignedBigInteger('document_section_id');
-            $table->text('content');
+            $table->text('content')->nullable();
+            $table->json('data')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
         });

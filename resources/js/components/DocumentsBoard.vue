@@ -174,6 +174,11 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <p>Rename the document to:</p>
+                        <div class="form-group">
+                            <input class="form-control" type="text" ref="renameDocumentTitleInput" :value="activeTab.content.title" />
+                        </div>
+                        <button type="button" class="btn btn-primary" @click="updateDocumentTitle()">Rename Document</button>
                     </div>
                 </div>
             </div>
@@ -408,6 +413,25 @@ export default {
             }
             return null
         },
+        updateDocumentTitle() {
+            console.log('update document title')
+            let newTitle = this.$refs.renameDocumentTitleInput.value
+            let document = this.getActiveTab().content
+
+            if (newTitle === document.title) {
+                this.showRenameDocumentModal = false
+                return
+            }
+
+            axios.patch(this.$root.getPath(`documents/${document.id}/updateTitle`), {title: newTitle })
+                .then( response => {
+                    if (response.data) {
+                        document.title = newTitle
+                        document.display_title = response.data.display_title
+                        this.showRenameDocumentModal = false
+                    }
+                })
+        },
         updateDocumentDate() {
             console.log('update document date')
             let newDate = this.$refs.changeDateDocumentInput.value
@@ -428,7 +452,6 @@ export default {
                         this.showChangeDateDocumentModal = false
                     }
                 })
-
         },
         deleteDocument(documentId) {
             let document = this.getActiveTab().content

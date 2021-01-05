@@ -43,7 +43,7 @@ class Document extends Model
 
     protected function getDisplayTitleAttribute()
     {
-        return $this->template->auto_title ? $this->getAutoTitle() : $this->title;
+        return $this->template->auto_title ? $this->getAutoTitle() : ($this->title ? $this->title : 'Untitled');
     }
 
     protected function getDisplayDatetime()

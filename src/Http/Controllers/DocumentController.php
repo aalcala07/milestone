@@ -77,11 +77,17 @@ class DocumentController
         return response()->json($document);
     }
 
+    public function updateTitle(Request $request, Document $document)
+    {
+        $document->title = $request->input('title');
+        $result = $document->save();
+        return response()->json($result ? $document : $result);
+    }
+
     public function updateDate(Request $request, Document $document)
     {
         $document->publish_date = $request->input('publish_date');
         $result = $document->save();
-
         return response()->json($result ? $document : $result);
     }
 

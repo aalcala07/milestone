@@ -29,6 +29,7 @@ Route::namespace('Milestone\Http\Controllers')->group(function () {
                 Route::patch('field/{field}', 'DocumentController@updateField')->name('updateField');
                 Route::get('templates', 'DocumentController@templates')->name('templates');
                 Route::post('create', 'DocumentController@create')->name('create');
+                Route::patch('{document}/updateTitle', 'DocumentController@updateTitle')->name('updateTitle');
                 Route::patch('{document}/updateDate', 'DocumentController@updateDate')->name('updateDate');
                 Route::delete('{document}', 'DocumentController@destroy')->name('destroy');
             });

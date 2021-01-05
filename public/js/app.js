@@ -2152,6 +2152,11 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['groups'],
   data: function data() {
@@ -2485,8 +2490,30 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
       return null;
     },
-    updateDocumentDate: function updateDocumentDate() {
+    updateDocumentTitle: function updateDocumentTitle() {
       var _this4 = this;
+
+      console.log('update document title');
+      var newTitle = this.$refs.renameDocumentTitleInput.value;
+      var document = this.getActiveTab().content;
+
+      if (newTitle === document.title) {
+        this.showRenameDocumentModal = false;
+        return;
+      }
+
+      axios.patch(this.$root.getPath("documents/".concat(document.id, "/updateTitle")), {
+        title: newTitle
+      }).then(function (response) {
+        if (response.data) {
+          document.title = newTitle;
+          document.display_title = response.data.display_title;
+          _this4.showRenameDocumentModal = false;
+        }
+      });
+    },
+    updateDocumentDate: function updateDocumentDate() {
+      var _this5 = this;
 
       console.log('update document date');
       var newDate = this.$refs.changeDateDocumentInput.value;
@@ -2505,25 +2532,25 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
           document.display_date = response.data.display_date;
           document.display_date_relative = response.data.display_date_relative;
           document.display_title = response.data.display_title;
-          _this4.showChangeDateDocumentModal = false;
+          _this5.showChangeDateDocumentModal = false;
         }
       });
     },
     deleteDocument: function deleteDocument(documentId) {
-      var _this5 = this;
+      var _this6 = this;
 
       var document = this.getActiveTab().content;
       axios["delete"](this.$root.getPath("documents/".concat(documentId))).then(function (response) {
         if (response.data) {
           // remove document from tabs
-          for (var i = 0; i < _this5.openTabs.length; i++) {
-            if (_this5.openTabs[i].content.id === documentId) {
-              _this5.closeTab(i);
+          for (var i = 0; i < _this6.openTabs.length; i++) {
+            if (_this6.openTabs[i].content.id === documentId) {
+              _this6.closeTab(i);
             }
           } // remove document from side nav
 
 
-          var _iterator7 = _createForOfIteratorHelper(_this5.mutableGroups),
+          var _iterator7 = _createForOfIteratorHelper(_this6.mutableGroups),
               _step7;
 
           try {
@@ -2556,7 +2583,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
             _iterator7.f();
           }
 
-          _this5.showDeleteDocumentModal = false;
+          _this6.showDeleteDocumentModal = false;
         }
       });
     }
@@ -40119,7 +40146,32 @@ var render = function() {
                   )
                 ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "modal-body" })
+                _c("div", { staticClass: "modal-body" }, [
+                  _c("p", [_vm._v("Rename the document to:")]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "form-group" }, [
+                    _c("input", {
+                      ref: "renameDocumentTitleInput",
+                      staticClass: "form-control",
+                      attrs: { type: "text" },
+                      domProps: { value: _vm.activeTab.content.title }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { type: "button" },
+                      on: {
+                        click: function($event) {
+                          return _vm.updateDocumentTitle()
+                        }
+                      }
+                    },
+                    [_vm._v("Rename Document")]
+                  )
+                ])
               ])
             ])
           ]

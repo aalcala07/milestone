@@ -6,20 +6,34 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="url" content="{{ config('app.url') }}">
+    <meta name="path" content="{{ config('milestone.path') }}">
 
     <title>Milestone</title>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="{{ mix('js/app.js', 'vendor/milestone') }}" defer></script>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
     <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ mix('css/app.css', 'vendor/milestone') }}" rel="stylesheet">
 </head>
 <style>
+    
+body {
+    height: 100vh;
+}
+
+#app {
+    height: 100%;
+}
+
+main {
+    height: 100%;
+}
 
 .goal-set-table input[type="number"] {
     width: 80px;
@@ -39,9 +53,74 @@
     font-size: 1rem;
 }
 
+.panel-board {
+    height: 100%;
+}
+
+.documents-panel {
+    padding: 15px;
+    margin: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.documents-left-panel {
+    width: 400px;
+    margin-left: 30px;
+}
+
+.documents-center-panel {
+    
+}
+
+.documents-right-panel {
+    width: 400px;
+    margin-right: 30px;
+}
+
+.document-list-view {
+    overflow-y: auto;
+}
+
+.documents-list {
+    list-style: none;
+    padding: 0;
+    overflow-y: auto;
+}
+
+.documents-list-item .card {
+    border: none;
+}
+
+.panel-tabs {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    background: #e0e0e0;
+    margin: -15px -15px 15px;
+}
+
+.panel-tab {
+    border-right: 1px solid #d0d0d0;
+    padding: 5px 15px;
+    background: #f0f0f0;
+}
+
+.panel-tab.active {
+    background: #fff;
+}
+
+.annotations-list {
+    list-style: none;
+    padding: 0;
+    overflow-y: auto;
+}
+
+.annotations-list-item .card {
+    border: none;
+}
 </style>
 <body>
-    <div id="app">
+    <div id="app" class="d-flex flex-column">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
@@ -62,6 +141,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('goals.import') }}">Import</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('documents.index') }}">Documents</a>
                         </li>
                     </ul>
 

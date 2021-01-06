@@ -2200,6 +2200,35 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['groups'],
   data: function data() {
@@ -2480,8 +2509,26 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       this.updateDataField(field);
       this.$forceUpdate();
     },
-    deleteAgendaItem: function deleteAgendaItem(field, itemIndex) {
-      console.log('deleteAgendaItem');
+    addListItem: function addListItem(field) {
+      console.log('addListItem');
+      var item = {
+        name: this.$refs.addListItemInput[0].value
+      };
+
+      if (field.data && 'items' in field.data) {
+        field.data.items.push(item);
+      } else {
+        field.data = {
+          items: [item]
+        };
+      }
+
+      this.$refs.addListItemInput[0].value = '';
+      this.updateDataField(field);
+      this.$forceUpdate();
+    },
+    deleteListItem: function deleteListItem(field, itemIndex) {
+      console.log('deleteListItem');
       console.log({
         field: field,
         itemIndex: itemIndex
@@ -40097,7 +40144,7 @@ var render = function() {
                           ])
                         : section.template_section
                             .document_template_section_type === "agenda"
-                        ? _c("div", { staticClass: "mt-3 mb-3" }, [
+                        ? _c("div", { staticClass: "mt-3 mb-4" }, [
                             _c("h3", { staticClass: "mb-3" }, [
                               _vm._v(_vm._s(section.template_section.name))
                             ]),
@@ -40117,10 +40164,19 @@ var render = function() {
                                         _vm.fieldItems(section.fields[0]),
                                         function(item, itemIndex) {
                                           return _c("tr", [
+                                            _c(
+                                              "td",
+                                              {
+                                                staticStyle: { width: "30px" }
+                                              },
+                                              [
+                                                _vm._v(
+                                                  _vm._s(itemIndex + 1) + "."
+                                                )
+                                              ]
+                                            ),
+                                            _vm._v(" "),
                                             _c("td", [
-                                              _vm._v(
-                                                _vm._s(itemIndex + 1) + ". "
-                                              ),
                                               _c("input", {
                                                 directives: [
                                                   {
@@ -40132,7 +40188,8 @@ var render = function() {
                                                 ],
                                                 staticStyle: {
                                                   border: "none",
-                                                  padding: "2px 10px"
+                                                  padding: "2px 10px",
+                                                  width: "100%"
                                                 },
                                                 attrs: { type: "text" },
                                                 domProps: { value: item.name },
@@ -40163,61 +40220,75 @@ var render = function() {
                                             _vm._v(" "),
                                             _c(
                                               "td",
-                                              { attrs: { align: "right" } },
+                                              {
+                                                staticStyle: { width: "30px" },
+                                                attrs: { align: "right" }
+                                              },
                                               [
                                                 item.showDelete
-                                                  ? _c("div", [
-                                                      _c(
-                                                        "span",
-                                                        { staticClass: "mr-3" },
-                                                        [_vm._v("Delete?")]
-                                                      ),
-                                                      _vm._v(" "),
-                                                      _c(
-                                                        "button",
-                                                        {
-                                                          staticClass:
-                                                            "btn btn-sm btn-danger mr-2",
-                                                          attrs: {
-                                                            type: "button"
+                                                  ? _c(
+                                                      "div",
+                                                      {
+                                                        staticStyle: {
+                                                          "white-space":
+                                                            "nowrap"
+                                                        }
+                                                      },
+                                                      [
+                                                        _c(
+                                                          "span",
+                                                          {
+                                                            staticClass: "mr-3"
                                                           },
-                                                          on: {
-                                                            click: function(
-                                                              $event
-                                                            ) {
-                                                              _vm.deleteAgendaItem(
-                                                                section
-                                                                  .fields[0],
-                                                                itemIndex
-                                                              )
-                                                              item.showDelete = false
-                                                              _vm.$forceUpdate()
+                                                          [_vm._v("Delete?")]
+                                                        ),
+                                                        _vm._v(" "),
+                                                        _c(
+                                                          "button",
+                                                          {
+                                                            staticClass:
+                                                              "btn btn-sm btn-danger mr-2",
+                                                            attrs: {
+                                                              type: "button"
+                                                            },
+                                                            on: {
+                                                              click: function(
+                                                                $event
+                                                              ) {
+                                                                _vm.deleteListItem(
+                                                                  section
+                                                                    .fields[0],
+                                                                  itemIndex
+                                                                )
+                                                                item.showDelete = false
+                                                                _vm.$forceUpdate()
+                                                              }
                                                             }
-                                                          }
-                                                        },
-                                                        [_vm._v("Yes")]
-                                                      ),
-                                                      _vm._v(" "),
-                                                      _c(
-                                                        "button",
-                                                        {
-                                                          staticClass:
-                                                            "btn btn-sm",
-                                                          attrs: {
-                                                            type: "button"
                                                           },
-                                                          on: {
-                                                            click: function(
-                                                              $event
-                                                            ) {
-                                                              item.showDelete = false
-                                                              _vm.$forceUpdate()
+                                                          [_vm._v("Yes")]
+                                                        ),
+                                                        _vm._v(" "),
+                                                        _c(
+                                                          "button",
+                                                          {
+                                                            staticClass:
+                                                              "btn btn-sm",
+                                                            attrs: {
+                                                              type: "button"
+                                                            },
+                                                            on: {
+                                                              click: function(
+                                                                $event
+                                                              ) {
+                                                                item.showDelete = false
+                                                                _vm.$forceUpdate()
+                                                              }
                                                             }
-                                                          }
-                                                        },
-                                                        [_vm._v("No")]
-                                                      )
-                                                    ])
+                                                          },
+                                                          [_vm._v("No")]
+                                                        )
+                                                      ]
+                                                    )
                                                   : _c(
                                                       "a",
                                                       {
@@ -40277,7 +40348,7 @@ var render = function() {
                                   ]
                                 )
                               : _c("div", [
-                                  _c("p", [_vm._v("No agenda items")])
+                                  _c("p", [_vm._v("No agenda items.")])
                                 ]),
                             _vm._v(" "),
                             _c(
@@ -40450,9 +40521,252 @@ var render = function() {
                         : section.template_section
                             .document_template_section_type === "list"
                         ? _c("div", { staticClass: "mb-3" }, [
-                            _c("p", { staticClass: "small" }, [
+                            _c("h3", { staticClass: "mb-3" }, [
                               _vm._v(_vm._s(section.template_section.name))
-                            ])
+                            ]),
+                            _vm._v(" "),
+                            _vm.fieldItems(section.fields[0]) &&
+                            _vm.fieldItems(section.fields[0]).length
+                              ? _c(
+                                  "table",
+                                  {
+                                    staticClass:
+                                      "table table-sm table-borderless table-hover mb-3"
+                                  },
+                                  [
+                                    _c(
+                                      "tbody",
+                                      _vm._l(
+                                        _vm.fieldItems(section.fields[0]),
+                                        function(item, itemIndex) {
+                                          return _c("tr", [
+                                            _c(
+                                              "td",
+                                              {
+                                                staticStyle: { width: "30px" }
+                                              },
+                                              [
+                                                _vm._v(
+                                                  _vm._s(itemIndex + 1) + "."
+                                                )
+                                              ]
+                                            ),
+                                            _vm._v(" "),
+                                            _c("td", [
+                                              _c("input", {
+                                                directives: [
+                                                  {
+                                                    name: "model",
+                                                    rawName: "v-model",
+                                                    value: item.name,
+                                                    expression: "item.name"
+                                                  }
+                                                ],
+                                                staticStyle: {
+                                                  border: "none",
+                                                  padding: "2px 10px",
+                                                  width: "100%"
+                                                },
+                                                attrs: { type: "text" },
+                                                domProps: { value: item.name },
+                                                on: {
+                                                  input: [
+                                                    function($event) {
+                                                      if (
+                                                        $event.target.composing
+                                                      ) {
+                                                        return
+                                                      }
+                                                      _vm.$set(
+                                                        item,
+                                                        "name",
+                                                        $event.target.value
+                                                      )
+                                                    },
+                                                    function($event) {
+                                                      _vm.updateDataField(
+                                                        section.fields[0]
+                                                      )
+                                                      _vm.$forceUpdate()
+                                                    }
+                                                  ]
+                                                }
+                                              })
+                                            ]),
+                                            _vm._v(" "),
+                                            _c(
+                                              "td",
+                                              {
+                                                staticStyle: { width: "30px" },
+                                                attrs: { align: "right" }
+                                              },
+                                              [
+                                                item.showDelete
+                                                  ? _c(
+                                                      "div",
+                                                      {
+                                                        staticStyle: {
+                                                          "white-space":
+                                                            "nowrap"
+                                                        }
+                                                      },
+                                                      [
+                                                        _c(
+                                                          "span",
+                                                          {
+                                                            staticClass: "mr-3"
+                                                          },
+                                                          [_vm._v("Delete?")]
+                                                        ),
+                                                        _vm._v(" "),
+                                                        _c(
+                                                          "button",
+                                                          {
+                                                            staticClass:
+                                                              "btn btn-sm btn-danger mr-2",
+                                                            attrs: {
+                                                              type: "button"
+                                                            },
+                                                            on: {
+                                                              click: function(
+                                                                $event
+                                                              ) {
+                                                                _vm.deleteListItem(
+                                                                  section
+                                                                    .fields[0],
+                                                                  itemIndex
+                                                                )
+                                                                item.showDelete = false
+                                                                _vm.$forceUpdate()
+                                                              }
+                                                            }
+                                                          },
+                                                          [_vm._v("Yes")]
+                                                        ),
+                                                        _vm._v(" "),
+                                                        _c(
+                                                          "button",
+                                                          {
+                                                            staticClass:
+                                                              "btn btn-sm",
+                                                            attrs: {
+                                                              type: "button"
+                                                            },
+                                                            on: {
+                                                              click: function(
+                                                                $event
+                                                              ) {
+                                                                item.showDelete = false
+                                                                _vm.$forceUpdate()
+                                                              }
+                                                            }
+                                                          },
+                                                          [_vm._v("No")]
+                                                        )
+                                                      ]
+                                                    )
+                                                  : _c(
+                                                      "a",
+                                                      {
+                                                        attrs: {
+                                                          href:
+                                                            "javascript:void(0)"
+                                                        },
+                                                        on: {
+                                                          click: function(
+                                                            $event
+                                                          ) {
+                                                            item.showDelete = true
+                                                            _vm.$forceUpdate()
+                                                          }
+                                                        }
+                                                      },
+                                                      [
+                                                        _c("i", {
+                                                          staticClass: "bi bi-x"
+                                                        }),
+                                                        _c(
+                                                          "svg",
+                                                          {
+                                                            staticClass:
+                                                              "bi bi-x",
+                                                            attrs: {
+                                                              xmlns:
+                                                                "http://www.w3.org/2000/svg",
+                                                              width: "16",
+                                                              height: "16",
+                                                              fill:
+                                                                "currentColor",
+                                                              viewBox:
+                                                                "0 0 16 16"
+                                                            }
+                                                          },
+                                                          [
+                                                            _c("path", {
+                                                              attrs: {
+                                                                "fill-rule":
+                                                                  "evenodd",
+                                                                d:
+                                                                  "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                                                              }
+                                                            })
+                                                          ]
+                                                        )
+                                                      ]
+                                                    )
+                                              ]
+                                            )
+                                          ])
+                                        }
+                                      ),
+                                      0
+                                    )
+                                  ]
+                                )
+                              : _c("div", [
+                                  _c("p", [_vm._v("No list items.")])
+                                ]),
+                            _vm._v(" "),
+                            _c(
+                              "form",
+                              {
+                                staticClass: "form-inline mb-4",
+                                on: {
+                                  submit: function($event) {
+                                    $event.preventDefault()
+                                  }
+                                }
+                              },
+                              [
+                                _c("div", { staticClass: "form-group mr-2" }, [
+                                  _c("input", {
+                                    ref: "addListItemInput",
+                                    refInFor: true,
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      type: "text",
+                                      placeholder: "New list item..."
+                                    }
+                                  })
+                                ]),
+                                _vm._v(" "),
+                                _c(
+                                  "button",
+                                  {
+                                    staticClass: "btn btn-sm btn-primary",
+                                    attrs: { type: "button" },
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.addListItem(
+                                          section.fields[0]
+                                        )
+                                      }
+                                    }
+                                  },
+                                  [_vm._v("Add")]
+                                )
+                              ]
+                            )
                           ])
                         : _vm._e()
                     ])

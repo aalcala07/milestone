@@ -80,16 +80,17 @@
                             <p class="small">{{ section.template_section.name }}</p>
                             <textarea :readonly="activeDocumentSection !== index" @click="activeDocumentSection = index"style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
                         </div>
-                        <div v-else-if="section.template_section.document_template_section_type === 'agenda'" class="mt-3 mb-3">
+                        <div v-else-if="section.template_section.document_template_section_type === 'agenda'" class="mt-3 mb-4">
                             <h3 class="mb-3">{{ section.template_section.name }}</h3>
                             <table v-if="fieldItems(section.fields[0]) && fieldItems(section.fields[0]).length" class="table table-sm table-borderless table-hover mb-3">
                                 <tbody>
                                     <tr v-for="(item, itemIndex) in fieldItems(section.fields[0])">
-                                        <td>{{ itemIndex + 1 }}. <input type="text" v-model="item.name" style="border: none; padding: 2px 10px" @input="updateDataField(section.fields[0]); $forceUpdate()"></td>
-                                        <td align="right">
-                                            <div v-if="item.showDelete">
+                                        <td style="width: 30px;">{{ itemIndex + 1 }}.</td>
+                                        <td><input type="text" v-model="item.name" style="border: none; padding: 2px 10px; width: 100%;" @input="updateDataField(section.fields[0]); $forceUpdate()"></td>
+                                        <td align="right" style="width: 30px;">
+                                            <div v-if="item.showDelete" style="white-space: nowrap;">
                                                 <span class="mr-3">Delete?</span>
-                                                <button type="button" class="btn btn-sm btn-danger mr-2" @click="deleteAgendaItem(section.fields[0], itemIndex); item.showDelete = false; $forceUpdate()">Yes</button>
+                                                <button type="button" class="btn btn-sm btn-danger mr-2" @click="deleteListItem(section.fields[0], itemIndex); item.showDelete = false; $forceUpdate()">Yes</button>
                                                 <button type="button" class="btn btn-sm" @click="item.showDelete = false; $forceUpdate()">No</button>
                                             </div>
                                             <a v-else href="javascript:void(0)" @click="item.showDelete = true; $forceUpdate()">
@@ -101,7 +102,7 @@
                                 </tbody>
                             </table>
                             <div v-else>
-                                <p>No agenda items</p>
+                                <p>No agenda items.</p>
                             </div>
                             <form class="form-inline mb-4" @submit.prevent>
                                 <div class="form-group mr-2">
@@ -121,7 +122,35 @@
                             <textarea :readonly="activeDocumentSection !== index" @click="activeDocumentSection = index" style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
                         </div>
                         <div v-else-if="section.template_section.document_template_section_type === 'list'" class="mb-3">
-                            <p class="small">{{ section.template_section.name }}</p>
+                            <h3 class="mb-3">{{ section.template_section.name }}</h3>
+                            <table v-if="fieldItems(section.fields[0]) && fieldItems(section.fields[0]).length" class="table table-sm table-borderless table-hover mb-3">
+                                <tbody>
+                                    <tr v-for="(item, itemIndex) in fieldItems(section.fields[0])">
+                                        <td style="width: 30px;">{{ itemIndex + 1 }}.</td>
+                                        <td><input type="text" v-model="item.name" style="border: none; padding: 2px 10px; width: 100%;" @input="updateDataField(section.fields[0]); $forceUpdate()"></td>
+                                        <td align="right" style="width: 30px;">
+                                            <div v-if="item.showDelete" style="white-space: nowrap;">
+                                                <span class="mr-3">Delete?</span>
+                                                <button type="button" class="btn btn-sm btn-danger mr-2" @click="deleteListItem(section.fields[0], itemIndex); item.showDelete = false; $forceUpdate()">Yes</button>
+                                                <button type="button" class="btn btn-sm" @click="item.showDelete = false; $forceUpdate()">No</button>
+                                            </div>
+                                            <a v-else href="javascript:void(0)" @click="item.showDelete = true; $forceUpdate()">
+                                                <i class="bi bi-x"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                            </svg></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div v-else>
+                                <p>No list items.</p>
+                            </div>
+                            <form class="form-inline mb-4" @submit.prevent>
+                                <div class="form-group mr-2">
+                                    <input type="text" ref="addListItemInput" class="form-control" placeholder="New list item...">
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary" @click="addListItem(section.fields[0])">Add</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -426,8 +455,27 @@ export default {
             this.updateDataField(field)
             this.$forceUpdate();
         },
-        deleteAgendaItem(field, itemIndex) {
-            console.log('deleteAgendaItem')
+        addListItem(field) {
+            console.log('addListItem')
+
+            let item = {
+                name: this.$refs.addListItemInput[0].value
+            }
+            if (field.data && 'items' in field.data) {
+                field.data.items.push(item)
+            } else {
+                field.data = {
+                    items: [item]
+                }
+            }
+
+            this.$refs.addListItemInput[0].value = ''
+            
+            this.updateDataField(field)
+            this.$forceUpdate();
+        },
+        deleteListItem(field, itemIndex) {
+            console.log('deleteListItem')
             console.log({field, itemIndex})
             field.data.items.splice(itemIndex, 1)
             this.updateDataField(field);

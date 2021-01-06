@@ -78,7 +78,7 @@
                         </div>
                         <div v-else-if="section.template_section.document_template_section_type === 'markdown'" class="mb-3">
                             <p class="small">{{ section.template_section.name }}</p>
-                            <textarea :readonly="activeDocumentSection !== index" @click="activeDocumentSection = index"style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
+                            <MarkdownEditor v-model="section.fields[0].content" @input="updateField(section.fields[0])" style="background: #222; padding: 15px" />
                         </div>
                         <div v-else-if="section.template_section.document_template_section_type === 'agenda'" class="mt-3 mb-4">
                             <h3 class="mb-3">{{ section.template_section.name }}</h3>
@@ -337,8 +337,13 @@
 </template>
 
 <script>
+import MarkdownEditor from '@voraciousdev/vue-markdown-editor'
+
 export default {
     props: ['groups'],
+    components: {
+        MarkdownEditor
+    },
     data() {
         return {
             mutableGroups: this.groups,
@@ -400,7 +405,8 @@ export default {
         },
         activeTab: function() {
             return this.getActiveTab()
-        }
+        },
+        
     },
     methods: {
         handleSideNavItemClick(item) {
@@ -688,6 +694,12 @@ export default {
         },
         getItemUIState(item) {
             return 'uiState' in item ? item.uiState : null
+        },
+        compileMarkdown(input) {
+            console.log(input)
+            let markdown = marked(input, { sanitize: true });
+            console.log(markdown)
+            return markdown
         }
     }
 }

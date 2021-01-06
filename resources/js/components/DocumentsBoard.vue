@@ -82,12 +82,17 @@
                         </div>
                         <div v-else-if="section.template_section.document_template_section_type === 'agenda'" class="mt-3 mb-3">
                             <h3 class="mb-3">{{ section.template_section.name }}</h3>
-                            <table v-if="fieldItems(section.fields[0])" class="table table-sm table-borderless table-hover mb-3">
+                            <table v-if="fieldItems(section.fields[0]) && fieldItems(section.fields[0]).length" class="table table-sm table-borderless table-hover mb-3">
                                 <tbody>
                                     <tr v-for="(item, itemIndex) in fieldItems(section.fields[0])">
                                         <td>{{ itemIndex + 1 }}. <input type="text" v-model="item.name" style="border: none; padding: 2px 10px" @input="updateDataField(section.fields[0]); $forceUpdate()"></td>
-                                        <td>
-                                            <a href="javascript:void(0)" @click="deleteAgendaItem(section.fields[0], itemIndex)">
+                                        <td align="right">
+                                            <div v-if="item.showDelete">
+                                                <span class="mr-3">Delete?</span>
+                                                <button type="button" class="btn btn-sm btn-danger mr-2" @click="deleteAgendaItem(section.fields[0], itemIndex); item.showDelete = false; $forceUpdate()">Yes</button>
+                                                <button type="button" class="btn btn-sm" @click="item.showDelete = false; $forceUpdate()">No</button>
+                                            </div>
+                                            <a v-else href="javascript:void(0)" @click="item.showDelete = true; $forceUpdate()">
                                                 <i class="bi bi-x"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
                                                 <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                                             </svg></a>
@@ -424,6 +429,8 @@ export default {
         deleteAgendaItem(field, itemIndex) {
             console.log('deleteAgendaItem')
             console.log({field, itemIndex})
+            field.data.items.splice(itemIndex, 1)
+            this.updateDataField(field);
         },
         createDocument() {
             let templateId = this.$refs.createDocumentTemplateId.value

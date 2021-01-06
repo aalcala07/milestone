@@ -2195,6 +2195,11 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['groups'],
   data: function data() {
@@ -2481,6 +2486,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         field: field,
         itemIndex: itemIndex
       });
+      field.data.items.splice(itemIndex, 1);
+      this.updateDataField(field);
     },
     createDocument: function createDocument() {
       var _this3 = this;
@@ -40095,7 +40102,8 @@ var render = function() {
                               _vm._v(_vm._s(section.template_section.name))
                             ]),
                             _vm._v(" "),
-                            _vm.fieldItems(section.fields[0])
+                            _vm.fieldItems(section.fields[0]) &&
+                            _vm.fieldItems(section.fields[0]).length
                               ? _c(
                                   "table",
                                   {
@@ -40153,53 +40161,114 @@ var render = function() {
                                               })
                                             ]),
                                             _vm._v(" "),
-                                            _c("td", [
-                                              _c(
-                                                "a",
-                                                {
-                                                  attrs: {
-                                                    href: "javascript:void(0)"
-                                                  },
-                                                  on: {
-                                                    click: function($event) {
-                                                      return _vm.deleteAgendaItem(
-                                                        section.fields[0],
-                                                        itemIndex
+                                            _c(
+                                              "td",
+                                              { attrs: { align: "right" } },
+                                              [
+                                                item.showDelete
+                                                  ? _c("div", [
+                                                      _c(
+                                                        "span",
+                                                        { staticClass: "mr-3" },
+                                                        [_vm._v("Delete?")]
+                                                      ),
+                                                      _vm._v(" "),
+                                                      _c(
+                                                        "button",
+                                                        {
+                                                          staticClass:
+                                                            "btn btn-sm btn-danger mr-2",
+                                                          attrs: {
+                                                            type: "button"
+                                                          },
+                                                          on: {
+                                                            click: function(
+                                                              $event
+                                                            ) {
+                                                              _vm.deleteAgendaItem(
+                                                                section
+                                                                  .fields[0],
+                                                                itemIndex
+                                                              )
+                                                              item.showDelete = false
+                                                              _vm.$forceUpdate()
+                                                            }
+                                                          }
+                                                        },
+                                                        [_vm._v("Yes")]
+                                                      ),
+                                                      _vm._v(" "),
+                                                      _c(
+                                                        "button",
+                                                        {
+                                                          staticClass:
+                                                            "btn btn-sm",
+                                                          attrs: {
+                                                            type: "button"
+                                                          },
+                                                          on: {
+                                                            click: function(
+                                                              $event
+                                                            ) {
+                                                              item.showDelete = false
+                                                              _vm.$forceUpdate()
+                                                            }
+                                                          }
+                                                        },
+                                                        [_vm._v("No")]
                                                       )
-                                                    }
-                                                  }
-                                                },
-                                                [
-                                                  _c("i", {
-                                                    staticClass: "bi bi-x"
-                                                  }),
-                                                  _c(
-                                                    "svg",
-                                                    {
-                                                      staticClass: "bi bi-x",
-                                                      attrs: {
-                                                        xmlns:
-                                                          "http://www.w3.org/2000/svg",
-                                                        width: "16",
-                                                        height: "16",
-                                                        fill: "currentColor",
-                                                        viewBox: "0 0 16 16"
-                                                      }
-                                                    },
-                                                    [
-                                                      _c("path", {
+                                                    ])
+                                                  : _c(
+                                                      "a",
+                                                      {
                                                         attrs: {
-                                                          "fill-rule":
-                                                            "evenodd",
-                                                          d:
-                                                            "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                                                          href:
+                                                            "javascript:void(0)"
+                                                        },
+                                                        on: {
+                                                          click: function(
+                                                            $event
+                                                          ) {
+                                                            item.showDelete = true
+                                                            _vm.$forceUpdate()
+                                                          }
                                                         }
-                                                      })
-                                                    ]
-                                                  )
-                                                ]
-                                              )
-                                            ])
+                                                      },
+                                                      [
+                                                        _c("i", {
+                                                          staticClass: "bi bi-x"
+                                                        }),
+                                                        _c(
+                                                          "svg",
+                                                          {
+                                                            staticClass:
+                                                              "bi bi-x",
+                                                            attrs: {
+                                                              xmlns:
+                                                                "http://www.w3.org/2000/svg",
+                                                              width: "16",
+                                                              height: "16",
+                                                              fill:
+                                                                "currentColor",
+                                                              viewBox:
+                                                                "0 0 16 16"
+                                                            }
+                                                          },
+                                                          [
+                                                            _c("path", {
+                                                              attrs: {
+                                                                "fill-rule":
+                                                                  "evenodd",
+                                                                d:
+                                                                  "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                                                              }
+                                                            })
+                                                          ]
+                                                        )
+                                                      ]
+                                                    )
+                                              ]
+                                            )
                                           ])
                                         }
                                       ),

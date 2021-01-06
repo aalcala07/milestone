@@ -2229,6 +2229,49 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['groups'],
   data: function data() {
@@ -2482,7 +2525,19 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         console.log(response);
       });
     },
+    clearUIState: function clearUIState(field) {
+      var clone = Object.assign({}, field);
+
+      if ('items' in clone.data) {
+        clone.data.items.forEach(function (item) {
+          item.uiState = null;
+        });
+      }
+
+      return clone;
+    },
     updateDataField: function updateDataField(field) {
+      field = this.clearUIState(field);
       axios.patch(this.$root.getPath("documents/field/".concat(field.id)), {
         data: field.data
       }).then(function (response) {
@@ -2524,6 +2579,26 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       }
 
       this.$refs.addListItemInput[0].value = '';
+      this.updateDataField(field);
+      this.$forceUpdate();
+    },
+    addLinkItem: function addLinkItem(field) {
+      console.log('addLinkItem');
+      var item = {
+        name: this.$refs.addLinkItemNameInput[0].value,
+        url: this.$refs.addLinkItemUrlInput[0].value
+      };
+
+      if (field.data && 'items' in field.data) {
+        field.data.items.push(item);
+      } else {
+        field.data = {
+          items: [item]
+        };
+      }
+
+      this.$refs.addLinkItemNameInput[0].value = '';
+      this.$refs.addLinkItemUrlInput[0].value = '';
       this.updateDataField(field);
       this.$forceUpdate();
     },
@@ -2716,6 +2791,9 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     },
     fieldItems: function fieldItems(field) {
       return field.data && 'items' in field.data ? field.data.items : null;
+    },
+    getItemUIState: function getItemUIState(item) {
+      return 'uiState' in item ? item.uiState : null;
     }
   }
 });
@@ -40306,9 +40384,6 @@ var render = function() {
                                                         }
                                                       },
                                                       [
-                                                        _c("i", {
-                                                          staticClass: "bi bi-x"
-                                                        }),
                                                         _c(
                                                           "svg",
                                                           {
@@ -40475,48 +40550,408 @@ var render = function() {
                         : section.template_section
                             .document_template_section_type === "links"
                         ? _c("div", { staticClass: "mb-3" }, [
-                            _c("p", { staticClass: "small" }, [
+                            _c("h3", { staticClass: "mb-3" }, [
                               _vm._v(_vm._s(section.template_section.name))
                             ]),
                             _vm._v(" "),
-                            _c("textarea", {
-                              directives: [
-                                {
-                                  name: "model",
-                                  rawName: "v-model",
-                                  value: section.fields[0].content,
-                                  expression: "section.fields[0].content"
-                                }
-                              ],
-                              staticStyle: {
-                                width: "100%",
-                                "min-height": "300px"
-                              },
-                              attrs: {
-                                readonly: _vm.activeDocumentSection !== index
-                              },
-                              domProps: { value: section.fields[0].content },
-                              on: {
-                                click: function($event) {
-                                  _vm.activeDocumentSection = index
-                                },
-                                input: [
-                                  function($event) {
-                                    if ($event.target.composing) {
-                                      return
-                                    }
-                                    _vm.$set(
-                                      section.fields[0],
-                                      "content",
-                                      $event.target.value
-                                    )
+                            _vm.fieldItems(section.fields[0]) &&
+                            _vm.fieldItems(section.fields[0]).length
+                              ? _c(
+                                  "table",
+                                  {
+                                    staticClass:
+                                      "table table-sm table-borderless table-hover mb-3"
                                   },
-                                  function($event) {
-                                    return _vm.updateField(section.fields[0])
+                                  [
+                                    _c(
+                                      "tbody",
+                                      _vm._l(
+                                        _vm.fieldItems(section.fields[0]),
+                                        function(item, itemIndex) {
+                                          return _c("tr", [
+                                            _c(
+                                              "td",
+                                              {
+                                                staticStyle: { width: "30px" }
+                                              },
+                                              [
+                                                _vm._v(
+                                                  _vm._s(itemIndex + 1) + "."
+                                                )
+                                              ]
+                                            ),
+                                            _vm._v(" "),
+                                            _c("td", [
+                                              _vm.getItemUIState(item) ===
+                                              "edit"
+                                                ? _c("div", [
+                                                    _c("input", {
+                                                      directives: [
+                                                        {
+                                                          name: "model",
+                                                          rawName: "v-model",
+                                                          value: item.name,
+                                                          expression:
+                                                            "item.name"
+                                                        }
+                                                      ],
+                                                      staticStyle: {
+                                                        border: "none",
+                                                        padding: "2px 10px",
+                                                        width: "100%"
+                                                      },
+                                                      attrs: {
+                                                        type: "text",
+                                                        placeholder: "Link name"
+                                                      },
+                                                      domProps: {
+                                                        value: item.name
+                                                      },
+                                                      on: {
+                                                        input: [
+                                                          function($event) {
+                                                            if (
+                                                              $event.target
+                                                                .composing
+                                                            ) {
+                                                              return
+                                                            }
+                                                            _vm.$set(
+                                                              item,
+                                                              "name",
+                                                              $event.target
+                                                                .value
+                                                            )
+                                                          },
+                                                          function($event) {
+                                                            return _vm.updateDataField(
+                                                              section.fields[0]
+                                                            )
+                                                          }
+                                                        ]
+                                                      }
+                                                    }),
+                                                    _vm._v(" "),
+                                                    _c("input", {
+                                                      directives: [
+                                                        {
+                                                          name: "model",
+                                                          rawName: "v-model",
+                                                          value: item.url,
+                                                          expression: "item.url"
+                                                        }
+                                                      ],
+                                                      staticStyle: {
+                                                        border: "none",
+                                                        padding: "2px 10px",
+                                                        width: "100%"
+                                                      },
+                                                      attrs: {
+                                                        type: "text",
+                                                        placeholder: "Link URL"
+                                                      },
+                                                      domProps: {
+                                                        value: item.url
+                                                      },
+                                                      on: {
+                                                        input: [
+                                                          function($event) {
+                                                            if (
+                                                              $event.target
+                                                                .composing
+                                                            ) {
+                                                              return
+                                                            }
+                                                            _vm.$set(
+                                                              item,
+                                                              "url",
+                                                              $event.target
+                                                                .value
+                                                            )
+                                                          },
+                                                          function($event) {
+                                                            return _vm.updateDataField(
+                                                              section.fields[0]
+                                                            )
+                                                          }
+                                                        ]
+                                                      }
+                                                    }),
+                                                    _vm._v(" "),
+                                                    _c(
+                                                      "button",
+                                                      {
+                                                        staticClass:
+                                                          "btn btn-primary btn-sm",
+                                                        attrs: {
+                                                          type: "button"
+                                                        },
+                                                        on: {
+                                                          click: function(
+                                                            $event
+                                                          ) {
+                                                            item.uiState = null
+                                                            _vm.$forceUpdate()
+                                                          }
+                                                        }
+                                                      },
+                                                      [_vm._v("Done")]
+                                                    )
+                                                  ])
+                                                : _c("div", [
+                                                    _c(
+                                                      "a",
+                                                      {
+                                                        staticClass: "mr-3",
+                                                        attrs: {
+                                                          href: item.url,
+                                                          target: "_blank"
+                                                        }
+                                                      },
+                                                      [
+                                                        _vm._v(
+                                                          _vm._s(item.name)
+                                                        )
+                                                      ]
+                                                    ),
+                                                    _vm._v(" "),
+                                                    _c(
+                                                      "a",
+                                                      {
+                                                        attrs: {
+                                                          href:
+                                                            "javascript:void(0)"
+                                                        },
+                                                        on: {
+                                                          click: function(
+                                                            $event
+                                                          ) {
+                                                            item.uiState =
+                                                              "edit"
+                                                            _vm.$forceUpdate()
+                                                          }
+                                                        }
+                                                      },
+                                                      [
+                                                        _c(
+                                                          "svg",
+                                                          {
+                                                            staticClass:
+                                                              "bi bi-pencil-square",
+                                                            attrs: {
+                                                              xmlns:
+                                                                "http://www.w3.org/2000/svg",
+                                                              width: "16",
+                                                              height: "16",
+                                                              fill:
+                                                                "currentColor",
+                                                              viewBox:
+                                                                "0 0 16 16"
+                                                            }
+                                                          },
+                                                          [
+                                                            _c("path", {
+                                                              attrs: {
+                                                                d:
+                                                                  "M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"
+                                                              }
+                                                            }),
+                                                            _vm._v(" "),
+                                                            _c("path", {
+                                                              attrs: {
+                                                                "fill-rule":
+                                                                  "evenodd",
+                                                                d:
+                                                                  "M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"
+                                                              }
+                                                            })
+                                                          ]
+                                                        )
+                                                      ]
+                                                    )
+                                                  ])
+                                            ]),
+                                            _vm._v(" "),
+                                            _c(
+                                              "td",
+                                              {
+                                                staticStyle: { width: "30px" },
+                                                attrs: { align: "right" }
+                                              },
+                                              [
+                                                item.uiState === "delete"
+                                                  ? _c(
+                                                      "div",
+                                                      {
+                                                        staticStyle: {
+                                                          "white-space":
+                                                            "nowrap"
+                                                        }
+                                                      },
+                                                      [
+                                                        _c(
+                                                          "span",
+                                                          {
+                                                            staticClass: "mr-3"
+                                                          },
+                                                          [_vm._v("Delete?")]
+                                                        ),
+                                                        _vm._v(" "),
+                                                        _c(
+                                                          "button",
+                                                          {
+                                                            staticClass:
+                                                              "btn btn-sm btn-danger mr-2",
+                                                            attrs: {
+                                                              type: "button"
+                                                            },
+                                                            on: {
+                                                              click: function(
+                                                                $event
+                                                              ) {
+                                                                _vm.deleteListItem(
+                                                                  section
+                                                                    .fields[0],
+                                                                  itemIndex
+                                                                )
+                                                                item.uiState =
+                                                                  "delete"
+                                                                _vm.$forceUpdate()
+                                                              }
+                                                            }
+                                                          },
+                                                          [_vm._v("Yes")]
+                                                        ),
+                                                        _vm._v(" "),
+                                                        _c(
+                                                          "button",
+                                                          {
+                                                            staticClass:
+                                                              "btn btn-sm",
+                                                            attrs: {
+                                                              type: "button"
+                                                            },
+                                                            on: {
+                                                              click: function(
+                                                                $event
+                                                              ) {
+                                                                item.uiState = null
+                                                                _vm.$forceUpdate()
+                                                              }
+                                                            }
+                                                          },
+                                                          [_vm._v("No")]
+                                                        )
+                                                      ]
+                                                    )
+                                                  : _c(
+                                                      "a",
+                                                      {
+                                                        attrs: {
+                                                          href:
+                                                            "javascript:void(0)"
+                                                        },
+                                                        on: {
+                                                          click: function(
+                                                            $event
+                                                          ) {
+                                                            item.uiState =
+                                                              "delete"
+                                                            _vm.$forceUpdate()
+                                                          }
+                                                        }
+                                                      },
+                                                      [
+                                                        _c(
+                                                          "svg",
+                                                          {
+                                                            staticClass:
+                                                              "bi bi-x",
+                                                            attrs: {
+                                                              xmlns:
+                                                                "http://www.w3.org/2000/svg",
+                                                              width: "16",
+                                                              height: "16",
+                                                              fill:
+                                                                "currentColor",
+                                                              viewBox:
+                                                                "0 0 16 16"
+                                                            }
+                                                          },
+                                                          [
+                                                            _c("path", {
+                                                              attrs: {
+                                                                "fill-rule":
+                                                                  "evenodd",
+                                                                d:
+                                                                  "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                                                              }
+                                                            })
+                                                          ]
+                                                        )
+                                                      ]
+                                                    )
+                                              ]
+                                            )
+                                          ])
+                                        }
+                                      ),
+                                      0
+                                    )
+                                  ]
+                                )
+                              : _c("div", [_c("p", [_vm._v("No links.")])]),
+                            _vm._v(" "),
+                            _c(
+                              "form",
+                              {
+                                staticClass: "form-inline mb-4",
+                                on: {
+                                  submit: function($event) {
+                                    $event.preventDefault()
                                   }
-                                ]
-                              }
-                            })
+                                }
+                              },
+                              [
+                                _c("div", { staticClass: "form-group mr-2" }, [
+                                  _c("input", {
+                                    ref: "addLinkItemNameInput",
+                                    refInFor: true,
+                                    staticClass: "form-control mr-2",
+                                    attrs: {
+                                      type: "text",
+                                      placeholder: "Link name"
+                                    }
+                                  }),
+                                  _vm._v(" "),
+                                  _c("input", {
+                                    ref: "addLinkItemUrlInput",
+                                    refInFor: true,
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      type: "text",
+                                      placeholder: "Link URL"
+                                    }
+                                  })
+                                ]),
+                                _vm._v(" "),
+                                _c(
+                                  "button",
+                                  {
+                                    staticClass: "btn btn-sm btn-primary",
+                                    attrs: { type: "button" },
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.addLinkItem(
+                                          section.fields[0]
+                                        )
+                                      }
+                                    }
+                                  },
+                                  [_vm._v("Add")]
+                                )
+                              ]
+                            )
                           ])
                         : section.template_section
                             .document_template_section_type === "list"

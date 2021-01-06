@@ -94,7 +94,7 @@
                                                 <button type="button" class="btn btn-sm" @click="item.showDelete = false; $forceUpdate()">No</button>
                                             </div>
                                             <a v-else href="javascript:void(0)" @click="item.showDelete = true; $forceUpdate()">
-                                                <i class="bi bi-x"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
                                                 <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                                             </svg></a>
                                         </td>
@@ -118,8 +118,51 @@
                             </div>
                         </div>
                         <div v-else-if="section.template_section.document_template_section_type === 'links'" class="mb-3">
-                            <p class="small">{{ section.template_section.name }}</p>
-                            <textarea :readonly="activeDocumentSection !== index" @click="activeDocumentSection = index" style="width: 100%; min-height: 300px;" v-model="section.fields[0].content" @input="updateField(section.fields[0])"></textarea>
+                            <h3 class="mb-3">{{ section.template_section.name }}</h3>
+                            <table v-if="fieldItems(section.fields[0]) && fieldItems(section.fields[0]).length" class="table table-sm table-borderless table-hover mb-3">
+                                <tbody>
+                                    <tr v-for="(item, itemIndex) in fieldItems(section.fields[0])">
+                                        <td style="width: 30px;">{{ itemIndex + 1 }}.</td>
+                                        <td>
+                                            <div v-if="getItemUIState(item) === 'edit'">
+                                                <input type="text" v-model="item.name" style="border: none; padding: 2px 10px; width: 100%;" placeholder="Link name" @input="updateDataField(section.fields[0])">
+                                                <input type="text" v-model="item.url" style="border: none; padding: 2px 10px; width: 100%;" placeholder="Link URL" @input="updateDataField(section.fields[0])">
+                                                <button type="button" class="btn btn-primary btn-sm" @click="item.uiState = null; $forceUpdate()">Done</button>
+                                            </div>
+                                            <div v-else>
+                                                <a :href="item.url" target="_blank" class="mr-3">{{ item.name }}</a>
+                                                <a href="javascript:void(0)" @click="item.uiState = 'edit'; $forceUpdate()">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td align="right" style="width: 30px;">
+                                            <div v-if="item.uiState === 'delete'" style="white-space: nowrap;">
+                                                <span class="mr-3">Delete?</span>
+                                                <button type="button" class="btn btn-sm btn-danger mr-2" @click="deleteListItem(section.fields[0], itemIndex); item.uiState = 'delete'; $forceUpdate()">Yes</button>
+                                                <button type="button" class="btn btn-sm" @click="item.uiState = null; $forceUpdate()">No</button>
+                                            </div>
+                                            <a v-else href="javascript:void(0)" @click="item.uiState = 'delete'; $forceUpdate()">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                            </svg></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div v-else>
+                                <p>No links.</p>
+                            </div>
+                            <form class="form-inline mb-4" @submit.prevent>
+                                <div class="form-group mr-2">
+                                    <input type="text" ref="addLinkItemNameInput" class="form-control mr-2" placeholder="Link name">
+                                    <input type="text" ref="addLinkItemUrlInput" class="form-control" placeholder="Link URL">
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary" @click="addLinkItem(section.fields[0])">Add</button>
+                            </form>
                         </div>
                         <div v-else-if="section.template_section.document_template_section_type === 'list'" class="mb-3">
                             <h3 class="mb-3">{{ section.template_section.name }}</h3>
@@ -428,7 +471,18 @@ export default {
                     console.log(response)
                 })
         },
+        clearFieldUIState(field) {
+            var clone = Object.assign({}, field)
+            if ('items' in clone.data) {
+                clone.data.items.forEach( (item) => {
+                    item.uiState = null
+                })
+            }
+            return clone
+        },
         updateDataField(field) {
+            field = this.clearFieldUIState(field);
+
             axios.patch(this.$root.getPath(`documents/field/${field.id}`), {data: field.data })
                 .then( response => {
                     console.log('Updated field')
@@ -470,6 +524,27 @@ export default {
             }
 
             this.$refs.addListItemInput[0].value = ''
+            
+            this.updateDataField(field)
+            this.$forceUpdate();
+        },
+        addLinkItem(field) {
+            console.log('addLinkItem')
+
+            let item = {
+                name: this.$refs.addLinkItemNameInput[0].value,
+                url: this.$refs.addLinkItemUrlInput[0].value
+            }
+            if (field.data && 'items' in field.data) {
+                field.data.items.push(item)
+            } else {
+                field.data = {
+                    items: [item]
+                }
+            }
+
+            this.$refs.addLinkItemNameInput[0].value = ''
+            this.$refs.addLinkItemUrlInput[0].value = ''
             
             this.updateDataField(field)
             this.$forceUpdate();
@@ -610,6 +685,9 @@ export default {
         },
         fieldItems(field) {
             return (field.data && 'items' in field.data) ? field.data.items : null
+        },
+        getItemUIState(item) {
+            return 'uiState' in item ? item.uiState : null
         }
     }
 }

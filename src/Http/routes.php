@@ -32,6 +32,7 @@ Route::namespace('Milestone\Http\Controllers')->group(function () {
                 Route::patch('{document}/updateTitle', 'DocumentController@updateTitle')->name('updateTitle');
                 Route::patch('{document}/updateDate', 'DocumentController@updateDate')->name('updateDate');
                 Route::delete('{document}', 'DocumentController@destroy')->name('destroy');
+                Route::patch('ui', 'DocumentController@updateUi')->name('updateUi');
             });
             
             Route::get('settings', 'SettingsController@index')->name('settings.index');

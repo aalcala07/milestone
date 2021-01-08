@@ -9,6 +9,7 @@ use Milestone\DocumentGroup;
 use Milestone\DocumentTemplate;
 use Milestone\DocumentSection;
 use Milestone\DocumentSectionField;
+use Milestone\UserSettings;
 
 class DocumentController
 {
@@ -25,7 +26,25 @@ class DocumentController
         // dd($documents->first()->template);
         // echo "<pre>" . $groups->toJson(JSON_PRETTY_PRINT) . "</pre>"; die;
 
-        return view('milestone::documents.index', compact('groups'));
+        // $ui = json_encode([
+        //     'openTabs' => []
+        // ]);
+        $settings = UserSettings::where('user_id', auth()->user()->id)->first();
+        $ui = $settings->ui_state ? json_decode($settings->ui_state, 1) : [];
+        $ui = isset($ui['documents']) ? $ui['documents'] : [];
+        
+        $ui['openTabs'] = isset($ui['openTabs']) ? $ui['openTabs'] : [];
+        $ui['selectedGroup'] = isset($ui['selectedGroup']) ? $ui['selectedGroup'] : null;
+        $ui['selectedYear'] = isset($ui['selectedYear']) ? $ui['selectedYear'] : null;
+
+        // dd($ui);
+        $ui = json_encode($ui);
+        // $ui = json_encode([
+        //     'openTabs' => []
+        // ]);
+
+
+        return view('milestone::documents.index', compact('groups', 'ui'));
     }
 
     public function sections(Request $request, Document $document)
@@ -100,6 +119,24 @@ class DocumentController
     public function destroy(Request $request, Document $document)
     {
         $result = $document->delete();
+        return response()->json($result);
+    }
+
+    public function updateUi(Request $request)
+    {
+        $settings = UserSettings::where('user_id', auth()->user()->id)->first();
+        $uiState = $settings->ui_state ? json_decode($settings->ui_state, 1) : [];
+        $uiState['documents'] = $request->input('ui');
+
+        foreach ($uiState['documents']['openTabs'] as &$tab) {
+            if ($tab['type'] === 'document') {
+                unset($tab['content']['sections']);
+            }
+        }
+        
+        $settings->ui_state = json_encode($uiState);
+        $result = $settings->save();
+
         return response()->json($result);
     }
 }

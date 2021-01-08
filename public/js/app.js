@@ -19878,15 +19878,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _voraciousdev_vue_markdown_editor__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_voraciousdev_vue_markdown_editor__WEBPACK_IMPORTED_MODULE_1__);
 
 
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 //
 //
@@ -20228,16 +20228,14 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['groups'],
+  props: ['groups', 'startUi'],
   components: {
     MarkdownEditor: _voraciousdev_vue_markdown_editor__WEBPACK_IMPORTED_MODULE_1___default.a
   },
   data: function data() {
     return {
       mutableGroups: this.groups,
-      selectedGroup: null,
-      selectedYear: null,
-      openTabs: [],
+      ui: {},
       activeDocument: null,
       activeDocumentSection: null,
       showCreateDocumentModal: false,
@@ -20248,6 +20246,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     };
   },
   created: function created() {
+    var _this = this;
+
     console.log('created');
     var self = this;
     axios.get(this.$root.getPath("documents/templates")).then(function (response) {
@@ -20255,6 +20255,55 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         self.documentTemplates = response.data;
       }
     });
+    this.ui = Object.assign({}, this.startUi);
+
+    if (this.ui.openTabs.length) {
+      this.ui.openTabs.forEach( /*#__PURE__*/function () {
+        var _ref = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(tab) {
+          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+            while (1) {
+              switch (_context.prev = _context.next) {
+                case 0:
+                  if (!tab.isActive) {
+                    _context.next = 5;
+                    break;
+                  }
+
+                  _context.next = 3;
+                  return _this.getDocumentSections(tab.content.id);
+
+                case 3:
+                  tab.content.sections = _context.sent;
+
+                  _this.$forceUpdate();
+
+                case 5:
+                case "end":
+                  return _context.stop();
+              }
+            }
+          }, _callee);
+        }));
+
+        return function (_x) {
+          return _ref.apply(this, arguments);
+        };
+      }());
+    }
+  },
+  watch: {
+    ui: {
+      handler: function handler(newUi, oldUi) {
+        console.log('ui changed');
+        axios.patch(this.$root.getPath("documents/ui"), {
+          ui: newUi
+        }).then(function (response) {
+          if (response.data) {// saved
+          }
+        });
+      },
+      deep: true
+    }
   },
   computed: {
     documentsInSideNav: function documentsInSideNav() {
@@ -20267,7 +20316,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
           var group = _step.value;
 
-          if (group.name === this.selectedGroup) {
+          if (group.name === this.ui.selectedGroup) {
             var _iterator2 = _createForOfIteratorHelper(group.years),
                 _step2;
 
@@ -20275,7 +20324,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
               for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
                 var year = _step2.value;
 
-                if (year.year === this.selectedYear) {
+                if (year.year === this.ui.selectedYear) {
                   return year.documents;
                 }
               }
@@ -20296,7 +20345,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     },
     itemsInSideNav: function itemsInSideNav() {
       // return [];
-      if (this.selectedGroup) {
+      if (this.ui.selectedGroup) {
         // show years in type
         var _iterator3 = _createForOfIteratorHelper(this.mutableGroups),
             _step3;
@@ -20305,7 +20354,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
           for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
             var group = _step3.value;
 
-            if (group.name === this.selectedGroup) {
+            if (group.name === this.ui.selectedGroup) {
               return group.years.map(function (year) {
                 return {
                   name: year.year
@@ -20332,12 +20381,28 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     }
   },
   methods: {
+    cleanUi: function cleanUi(input) {
+      var output = Object.assign({}, input);
+      output.openTabs.forEach(function (item) {
+        delete item.content.sections;
+      });
+      console.log('cleanUi');
+      console.log(output);
+      console.log(input);
+      return output;
+    },
     handleSideNavItemClick: function handleSideNavItemClick(item) {
-      if (this.selectedGroup) {
-        this.selectedYear = item.name;
+      console.log('handleSideNavItemClick');
+      console.log(item);
+
+      if (this.ui.selectedGroup) {
+        this.ui.selectedYear = item.name;
       } else {
-        this.selectedGroup = item.name;
+        this.ui.selectedGroup = item.name;
+        console.log(this.ui.selectedGroup);
       }
+
+      this.$forceUpdate();
     },
     getTabTitle: function getTabTitle(tab) {
       if (tab.type === 'document') {
@@ -20345,134 +20410,158 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       }
     },
     openDocument: function openDocument(document) {
-      var _this = this;
+      var _this2 = this;
 
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
         var _iterator4, _step4, tab;
 
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
-            switch (_context.prev = _context.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
                 console.log("opening document id ".concat(document.id));
 
-                if (_this.openTabs.length) {
-                  _this.openTabs.forEach(function (tab) {
+                if (_this2.ui.openTabs.length) {
+                  _this2.ui.openTabs.forEach(function (tab) {
                     tab.isActive = false;
                   });
                 }
 
-                _iterator4 = _createForOfIteratorHelper(_this.openTabs);
-                _context.prev = 3;
+                _iterator4 = _createForOfIteratorHelper(_this2.ui.openTabs);
+                _context2.prev = 3;
 
                 _iterator4.s();
 
               case 5:
                 if ((_step4 = _iterator4.n()).done) {
-                  _context.next = 13;
+                  _context2.next = 19;
                   break;
                 }
 
                 tab = _step4.value;
 
                 if (!(tab.type === 'document' && tab.content.id === document.id)) {
-                  _context.next = 11;
+                  _context2.next = 17;
                   break;
                 }
 
                 console.log('document is already open. making active');
                 tab.isActive = true;
-                return _context.abrupt("return");
 
-              case 11:
-                _context.next = 5;
+                if (!(!'sections' in tab.content || typeof tab.content.sections === 'undefined' || !tab.content.sections.length)) {
+                  _context2.next = 16;
+                  break;
+                }
+
+                console.log('getting sections');
+                _context2.next = 14;
+                return _this2.getDocumentSections(document.id);
+
+              case 14:
+                tab.content.sections = _context2.sent;
+
+                _this2.$forceUpdate();
+
+              case 16:
+                return _context2.abrupt("return");
+
+              case 17:
+                _context2.next = 5;
                 break;
 
-              case 13:
-                _context.next = 18;
+              case 19:
+                _context2.next = 24;
                 break;
 
-              case 15:
-                _context.prev = 15;
-                _context.t0 = _context["catch"](3);
+              case 21:
+                _context2.prev = 21;
+                _context2.t0 = _context2["catch"](3);
 
-                _iterator4.e(_context.t0);
+                _iterator4.e(_context2.t0);
 
-              case 18:
-                _context.prev = 18;
+              case 24:
+                _context2.prev = 24;
 
                 _iterator4.f();
 
-                return _context.finish(18);
+                return _context2.finish(24);
 
-              case 21:
-                _context.next = 23;
-                return _this.getDocumentSections(document.id);
+              case 27:
+                _context2.next = 29;
+                return _this2.getDocumentSections(document.id);
 
-              case 23:
-                document.sections = _context.sent;
+              case 29:
+                document.sections = _context2.sent;
 
-                _this.openTabs.push({
+                _this2.ui.openTabs.push({
                   isActive: true,
                   type: 'document',
                   content: document,
                   focusFieldIndex: 0
                 });
 
-              case 25:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee, null, [[3, 15, 18, 21]]);
-      }))();
-    },
-    getDocumentSections: function getDocumentSections(documentId) {
-      var _this2 = this;
+                _this2.$forceUpdate();
 
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var response;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _context2.next = 2;
-                return axios.get(_this2.$root.getPath("documents/".concat(documentId, "/sections")));
-
-              case 2:
-                response = _context2.sent;
-
-                if (!response.data) {
-                  _context2.next = 6;
-                  break;
-                }
-
-                console.log(response.data.sections);
-                return _context2.abrupt("return", response.data.sections);
-
-              case 6:
+              case 32:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2);
+        }, _callee2, null, [[3, 21, 24, 27]]);
+      }))();
+    },
+    getDocumentSections: function getDocumentSections(documentId) {
+      var _this3 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return axios.get(_this3.$root.getPath("documents/".concat(documentId, "/sections")));
+
+              case 2:
+                response = _context3.sent;
+
+                if (!response.data) {
+                  _context3.next = 6;
+                  break;
+                }
+
+                console.log(response.data.sections);
+                return _context3.abrupt("return", response.data.sections);
+
+              case 6:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3);
       }))();
     },
     activateTab: function activateTab(tabIndex) {
-      this.openTabs.forEach(function (tab) {
+      if (this.ui.openTabs[tabIndex].type === 'document') {
+        this.openDocument(this.ui.openTabs[tabIndex].content);
+        return;
+      } // for non-documents
+
+
+      this.ui.openTabs.forEach(function (tab) {
         tab.isActive = false;
       });
-      this.openTabs[tabIndex].isActive = true;
+      this.ui.openTabs[tabIndex].isActive = true;
       this.activeDocumentSection = null;
     },
     closeTab: function closeTab(tabIndex) {
       var newActiveIndex = tabIndex === 0 ? 1 : tabIndex - 1;
 
-      if (typeof this.openTabs[newActiveIndex] !== 'undefined') {
-        this.openTabs[newActiveIndex].isActive = true;
+      if (typeof this.ui.openTabs[newActiveIndex] !== 'undefined') {
+        this.ui.openTabs[newActiveIndex].isActive = true;
       }
 
-      this.openTabs.splice(tabIndex, 1);
+      this.ui.openTabs.splice(tabIndex, 1);
     },
     updateField: function updateField(field) {
       console.log(field);
@@ -20570,7 +20659,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       this.updateDataField(field);
     },
     createDocument: function createDocument() {
-      var _this3 = this;
+      var _this4 = this;
 
       var templateId = this.$refs.createDocumentTemplateId.value;
       var self = this;
@@ -20587,7 +20676,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
           var documentAdded = false;
           var documentGroup = null;
 
-          var _iterator5 = _createForOfIteratorHelper(_this3.mutableGroups),
+          var _iterator5 = _createForOfIteratorHelper(_this4.mutableGroups),
               _step5;
 
           try {
@@ -20638,20 +20727,20 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       });
     },
     getActiveTab: function getActiveTab() {
-      if (!this.openTabs.length) {
+      if (!this.ui.openTabs.length) {
         return null;
       }
 
-      for (var i = 0; i < this.openTabs.length; i++) {
-        if (this.openTabs[i].isActive) {
-          return this.openTabs[i];
+      for (var i = 0; i < this.ui.openTabs.length; i++) {
+        if (this.ui.openTabs[i].isActive) {
+          return this.ui.openTabs[i];
         }
       }
 
       return null;
     },
     updateDocumentTitle: function updateDocumentTitle() {
-      var _this4 = this;
+      var _this5 = this;
 
       console.log('update document title');
       var newTitle = this.$refs.renameDocumentTitleInput.value;
@@ -20668,12 +20757,12 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         if (response.data) {
           document.title = newTitle;
           document.display_title = response.data.display_title;
-          _this4.showRenameDocumentModal = false;
+          _this5.showRenameDocumentModal = false;
         }
       });
     },
     updateDocumentDate: function updateDocumentDate() {
-      var _this5 = this;
+      var _this6 = this;
 
       console.log('update document date');
       var newDate = this.$refs.changeDateDocumentInput.value;
@@ -20692,25 +20781,25 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
           document.display_date = response.data.display_date;
           document.display_date_relative = response.data.display_date_relative;
           document.display_title = response.data.display_title;
-          _this5.showChangeDateDocumentModal = false;
+          _this6.showChangeDateDocumentModal = false;
         }
       });
     },
     deleteDocument: function deleteDocument(documentId) {
-      var _this6 = this;
+      var _this7 = this;
 
       var document = this.getActiveTab().content;
       axios["delete"](this.$root.getPath("documents/".concat(documentId))).then(function (response) {
         if (response.data) {
           // remove document from tabs
-          for (var i = 0; i < _this6.openTabs.length; i++) {
-            if (_this6.openTabs[i].content.id === documentId) {
-              _this6.closeTab(i);
+          for (var i = 0; i < _this7.ui.openTabs.length; i++) {
+            if (_this7.ui.openTabs[i].content.id === documentId) {
+              _this7.closeTab(i);
             }
           } // remove document from side nav
 
 
-          var _iterator7 = _createForOfIteratorHelper(_this6.mutableGroups),
+          var _iterator7 = _createForOfIteratorHelper(_this7.mutableGroups),
               _step7;
 
           try {
@@ -20743,7 +20832,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
             _iterator7.f();
           }
 
-          _this6.showDeleteDocumentModal = false;
+          _this7.showDeleteDocumentModal = false;
         }
       });
     },
@@ -57772,8 +57861,8 @@ var render = function() {
                     attrs: { href: "javascript:void(0);" },
                     on: {
                       click: function($event) {
-                        _vm.selectedGroup = null
-                        _vm.selectedYear = null
+                        _vm.ui.selectedGroup = null
+                        _vm.ui.selectedYear = null
                       }
                     }
                   },
@@ -57781,7 +57870,7 @@ var render = function() {
                 )
               ]),
               _vm._v(" "),
-              _vm.selectedGroup
+              _vm.ui.selectedGroup
                 ? _c("li", { staticClass: "breadcrumb-item" }, [
                     _c(
                       "a",
@@ -57789,24 +57878,24 @@ var render = function() {
                         attrs: { href: "javascript:void(0);" },
                         on: {
                           click: function($event) {
-                            _vm.selectedYear = null
+                            _vm.ui.selectedYear = null
                           }
                         }
                       },
-                      [_vm._v(_vm._s(_vm.selectedGroup))]
+                      [_vm._v(_vm._s(_vm.ui.selectedGroup))]
                     )
                   ])
                 : _vm._e(),
               _vm._v(" "),
-              _vm.selectedYear
+              _vm.ui.selectedYear
                 ? _c("li", { staticClass: "breadcrumb-item" }, [
-                    _vm._v(_vm._s(_vm.selectedYear))
+                    _vm._v(_vm._s(_vm.ui.selectedYear))
                   ])
                 : _vm._e()
             ])
           ]),
           _vm._v(" "),
-          _vm.selectedGroup && _vm.selectedYear
+          _vm.ui.selectedGroup && _vm.ui.selectedYear
             ? _c(
                 "ul",
                 { staticClass: "documents-list flex-fill" },
@@ -57883,7 +57972,7 @@ var render = function() {
             "ul",
             { staticClass: "panel-tabs" },
             [
-              _vm._l(_vm.openTabs, function(tab, tabIndex) {
+              _vm._l(_vm.ui.openTabs, function(tab, tabIndex) {
                 return _c(
                   "li",
                   {

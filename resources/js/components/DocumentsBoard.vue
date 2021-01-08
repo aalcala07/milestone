@@ -9,12 +9,12 @@
             <div class="document-list-view d-flex flex-column">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="javascript:void(0);" v-on:click="selectedGroup = null; selectedYear = null;">Documents</a></li>
-                        <li v-if="selectedGroup" class="breadcrumb-item"><a href="javascript:void(0);" v-on:click="selectedYear = null;">{{ selectedGroup }}</a></li>
-                        <li v-if="selectedYear" class="breadcrumb-item">{{ selectedYear }}</li>
+                        <li class="breadcrumb-item"><a href="javascript:void(0);" v-on:click="ui.selectedGroup = null; ui.selectedYear = null;">Documents</a></li>
+                        <li v-if="ui.selectedGroup" class="breadcrumb-item"><a href="javascript:void(0);" v-on:click="ui.selectedYear = null;">{{ ui.selectedGroup }}</a></li>
+                        <li v-if="ui.selectedYear" class="breadcrumb-item">{{ ui.selectedYear }}</li>
                     </ol>
                 </nav>
-                <ul v-if="selectedGroup && selectedYear" class="documents-list flex-fill">
+                <ul v-if="ui.selectedGroup && ui.selectedYear" class="documents-list flex-fill">
                     <li v-for="document in documentsInSideNav" class="documents-list-item">
                         <div class="card" v-on:click="openDocument(document)">
                             <div class="card-body">
@@ -37,7 +37,7 @@
         <div class="documents-panel documents-center-panel flex-grow-1 d-flex flex-column">
             <nav>
                 <ul class="panel-tabs">
-                    <li v-for="(tab, tabIndex) in openTabs" class="panel-tab" @click.self="activateTab(tabIndex)" v-bind:class="{ active: tab.isActive }">{{ getTabTitle(tab) }} 
+                    <li v-for="(tab, tabIndex) in ui.openTabs" class="panel-tab" @click.self="activateTab(tabIndex)" v-bind:class="{ active: tab.isActive }">{{ getTabTitle(tab) }} 
                         <a href="javascript:void(0)" @click="closeTab(tabIndex)">
                             <i class="bi bi-x"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -340,16 +340,14 @@
 import MarkdownEditor from '@voraciousdev/vue-markdown-editor'
 
 export default {
-    props: ['groups'],
+    props: ['groups', 'startUi'],
     components: {
         MarkdownEditor
     },
     data() {
         return {
             mutableGroups: this.groups,
-            selectedGroup: null,
-            selectedYear: null,
-            openTabs: [],
+            ui: {},
             activeDocument: null,
             activeDocumentSection: null,
             showCreateDocumentModal: false,
@@ -369,15 +367,40 @@ export default {
                     self.documentTemplates = response.data
                 }
             })
+
+        this.ui = Object.assign({}, this.startUi)
+
+        if (this.ui.openTabs.length) {
+            this.ui.openTabs.forEach( async tab => {
+                if (tab.isActive) {
+                    tab.content.sections = await this.getDocumentSections(tab.content.id)
+                    this.$forceUpdate()
+                }
+            })
+        }
+    },
+    watch: {
+        ui: {
+            handler: function (newUi, oldUi) {
+                console.log('ui changed')
+                axios.patch(this.$root.getPath(`documents/ui`), { ui: newUi })
+                    .then( response => {
+                        if (response.data) {
+                            // saved
+                        }   
+                    })
+            },
+            deep: true
+        }
     },
     computed: {
         documentsInSideNav: function() {
             // return this.documents[0].years[0].documents
             // return []
             for (let group of this.mutableGroups) {
-                if (group.name === this.selectedGroup) {
+                if (group.name === this.ui.selectedGroup) {
                     for (let year of group.years) {
-                        if (year.year === this.selectedYear) {
+                        if (year.year === this.ui.selectedYear) {
                             return year.documents
                         }
                     }
@@ -387,10 +410,10 @@ export default {
         },
         itemsInSideNav: function() {
             // return [];
-            if (this.selectedGroup) {
+            if (this.ui.selectedGroup) {
                 // show years in type
                 for (let group of this.mutableGroups) {
-                    if (group.name === this.selectedGroup) {
+                    if (group.name === this.ui.selectedGroup) {
                         return group.years.map( (year) => {
                             return { name: year.year }
                         }) 
@@ -409,12 +432,28 @@ export default {
         
     },
     methods: {
+        cleanUi(input) {
+            // TODO: this function is mutating the input somehow when called from inside the watch handler for ui
+            let output = Object.assign({}, input)
+
+            output.openTabs.forEach( (item) => {
+                delete item.content.sections
+            })
+            console.log('cleanUi')
+            console.log(output)
+            console.log(input)
+            return output
+        },
         handleSideNavItemClick(item) {
-            if (this.selectedGroup) {
-                this.selectedYear = item.name
+            console.log('handleSideNavItemClick')
+            console.log(item)
+            if (this.ui.selectedGroup) {
+                this.ui.selectedYear = item.name
             } else {
-                this.selectedGroup = item.name
+                this.ui.selectedGroup = item.name
+                console.log(this.ui.selectedGroup)
             }
+            this.$forceUpdate()
         },
         getTabTitle(tab) {
             if (tab.type === 'document') {
@@ -424,28 +463,35 @@ export default {
         async openDocument(document) {
 
             console.log(`opening document id ${document.id}`)
-            if (this.openTabs.length) {
-                this.openTabs.forEach( (tab) => {
+            if (this.ui.openTabs.length) {
+                this.ui.openTabs.forEach( (tab) => {
                     tab.isActive = false
                 })
             }
 
-            for (let tab of this.openTabs) {
+            for (let tab of this.ui.openTabs) {
                 if (tab.type === 'document' && tab.content.id === document.id) {
                     console.log('document is already open. making active')
                     tab.isActive = true
+                    if (!'sections' in tab.content || typeof tab.content.sections === 'undefined' || !tab.content.sections.length) {
+                        console.log('getting sections')
+                        tab.content.sections = await this.getDocumentSections(document.id)
+                        this.$forceUpdate()
+                    }
                     return
                 }
             }
 
             document.sections = await this.getDocumentSections(document.id)
 
-            this.openTabs.push({
+            this.ui.openTabs.push({
                 isActive: true,
                 type: 'document',
                 content: document,
                 focusFieldIndex: 0
             });
+
+            this.$forceUpdate()
         },
         async getDocumentSections(documentId) {
             const response = await axios.get(this.$root.getPath(`documents/${documentId}/sections`))
@@ -456,18 +502,25 @@ export default {
             }
         },
         activateTab(tabIndex) {
-            this.openTabs.forEach( (tab) => {
+
+            if (this.ui.openTabs[tabIndex].type === 'document') {
+                this.openDocument(this.ui.openTabs[tabIndex].content)
+                return
+            }
+
+            // for non-documents
+            this.ui.openTabs.forEach( (tab) => {
                 tab.isActive = false
             })
-            this.openTabs[tabIndex].isActive = true
+            this.ui.openTabs[tabIndex].isActive = true
             this.activeDocumentSection = null
         },
         closeTab(tabIndex) {
             let newActiveIndex = tabIndex === 0 ? 1 : tabIndex - 1
-            if (typeof this.openTabs[newActiveIndex] !== 'undefined') {
-                this.openTabs[newActiveIndex].isActive = true
+            if (typeof this.ui.openTabs[newActiveIndex] !== 'undefined') {
+                this.ui.openTabs[newActiveIndex].isActive = true
             }
-            this.openTabs.splice(tabIndex, 1)
+            this.ui.openTabs.splice(tabIndex, 1)
         },
         updateField(field) {
             console.log(field)
@@ -609,12 +662,12 @@ export default {
                 })
         },
         getActiveTab() {
-            if (!this.openTabs.length) {
+            if (!this.ui.openTabs.length) {
                 return null
             }
-            for (let i = 0; i < this.openTabs.length; i++) {
-                if (this.openTabs[i].isActive) {
-                    return this.openTabs[i]
+            for (let i = 0; i < this.ui.openTabs.length; i++) {
+                if (this.ui.openTabs[i].isActive) {
+                    return this.ui.openTabs[i]
                 }
             }
             return null
@@ -667,8 +720,8 @@ export default {
                     if (response.data) {
 
                         // remove document from tabs
-                        for (let i = 0; i < this.openTabs.length; i++) {
-                            if (this.openTabs[i].content.id === documentId) {
+                        for (let i = 0; i < this.ui.openTabs.length; i++) {
+                            if (this.ui.openTabs[i].content.id === documentId) {
                                 this.closeTab(i)
                             }
                         }

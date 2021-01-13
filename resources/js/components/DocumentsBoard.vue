@@ -9,7 +9,7 @@
             <div class="document-list-view d-flex flex-column">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="javascript:void(0);" v-on:click="ui.selectedGroup = null; ui.selectedYear = null;">Documents</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:void(0);" v-on:click="ui.selectedGroup = null; ui.selectedYear = null;">Docs</a></li>
                         <li v-if="ui.selectedGroup" class="breadcrumb-item"><a href="javascript:void(0);" v-on:click="ui.selectedYear = null;">{{ ui.selectedGroup }}</a></li>
                         <li v-if="ui.selectedYear" class="breadcrumb-item">{{ ui.selectedYear }}</li>
                     </ol>
@@ -19,7 +19,6 @@
                         <div class="card" v-on:click="openDocument(document)">
                             <div class="card-body">
                                 <h5 class="card-title">{{ document.display_title }}</h5>
-                                <p class="card-text">{{ document.text_preview }}</p>
                                 <p class="card-text"><small>{{ document.display_date_relative }}</small></p>
                             </div>
                         </div>
@@ -55,7 +54,7 @@
             <div class="document-view flex-grow pr-3">
                 <div v-if="activeTab && activeTab.type ==='document'">
                     <div class="d-flex flex-row">
-                        <h3>{{ activeTab.content.display_title }}</h3>
+                        <h3 class="document-title">{{ activeTab.content.display_title }}</h3>
                         <div class="ml-auto">
                             <div class="dropdown">
                                 <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

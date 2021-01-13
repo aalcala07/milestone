@@ -20225,7 +20225,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['groups', 'startUi'],
@@ -20382,6 +20381,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   },
   methods: {
     cleanUi: function cleanUi(input) {
+      // TODO: this function is mutating the input somehow when called from inside the watch handler for ui
       var output = Object.assign({}, input);
       output.openTabs.forEach(function (item) {
         delete item.content.sections;
@@ -57866,7 +57866,7 @@ var render = function() {
                       }
                     }
                   },
-                  [_vm._v("Documents")]
+                  [_vm._v("Docs")]
                 )
               ]),
               _vm._v(" "),
@@ -57915,10 +57915,6 @@ var render = function() {
                         _c("div", { staticClass: "card-body" }, [
                           _c("h5", { staticClass: "card-title" }, [
                             _vm._v(_vm._s(document.display_title))
-                          ]),
-                          _vm._v(" "),
-                          _c("p", { staticClass: "card-text" }, [
-                            _vm._v(_vm._s(document.text_preview))
                           ]),
                           _vm._v(" "),
                           _c("p", { staticClass: "card-text" }, [
@@ -58079,7 +58075,7 @@ var render = function() {
                 "div",
                 [
                   _c("div", { staticClass: "d-flex flex-row" }, [
-                    _c("h3", [
+                    _c("h3", { staticClass: "document-title" }, [
                       _vm._v(_vm._s(_vm.activeTab.content.display_title))
                     ]),
                     _vm._v(" "),

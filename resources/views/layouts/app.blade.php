@@ -64,7 +64,7 @@ main {
 }
 
 .documents-left-panel {
-    width: 400px;
+    width: 320px;
     margin-left: 30px;
 }
 
@@ -73,7 +73,7 @@ main {
 }
 
 .documents-right-panel {
-    width: 400px;
+    width: 320px;
     margin-right: 30px;
 }
 
@@ -89,6 +89,16 @@ main {
 
 .documents-list-item .card {
     border: none;
+    font-size: 0.8rem;
+}
+
+.documents-list-item .card:hover {
+    background: rgba(0,0,0,0.05);
+    cursor: pointer;
+}
+
+.documents-list-item .card-title {
+    font-size: 1rem;
 }
 
 .panel-tabs {
@@ -103,6 +113,7 @@ main {
     border-right: 1px solid #d0d0d0;
     padding: 5px 15px;
     background: #f0f0f0;
+    font-size: 0.8rem;
 }
 
 .panel-tab.active {
@@ -117,6 +128,16 @@ main {
 
 .annotations-list-item .card {
     border: none;
+}
+
+.document-view .document-title {
+    font-weight: bold;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 2.3rem;
 }
 </style>
 <body>
